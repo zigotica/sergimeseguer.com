@@ -5,5 +5,21 @@
     <title>Sergi Meseguer Thoughts</title>
     <link>https://sergimeseguer.com/thoughts/</link>
     <description>Thoughts on engineering, products, and the craft of building well.</description>
+    <item>
+      <title>Building Static Thoughts</title>
+      <link>https://sergimeseguer.com/thoughts/building-static-thoughts/</link>
+      <guid isPermaLink="true">https://sergimeseguer.com/thoughts/building-static-thoughts/</guid>
+      <pubDate>Fri, 14 Feb 2025 00:00:00 GMT</pubDate>
+      <dc:date>2025-02-14</dc:date>
+      <description>Notes on publishing small Markdown posts as static HTML.</description>
+    </item>
+    <item>
+      <title>Markdown First Notes</title>
+      <link>https://sergimeseguer.com/thoughts/markdown-first-notes/</link>
+      <guid isPermaLink="true">https://sergimeseguer.com/thoughts/markdown-first-notes/</guid>
+      <pubDate>Tue, 28 Jan 2025 00:00:00 GMT</pubDate>
+      <dc:date>2025-01-28</dc:date>
+      <description>A small example post showing supported Markdown content.</description>
+    </item>
   </channel>
 </rss>

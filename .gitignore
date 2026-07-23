@@ -1,4 +1,5 @@
 .DS_Store
+.ai/
 .astro/
 .astro-build/
 node_modules/
