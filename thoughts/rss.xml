@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- generated: thoughts-blog-markdown -->
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Sergi Meseguer Thoughts</title>
+    <link>https://sergimeseguer.com/thoughts/</link>
+    <description>Thoughts on engineering, products, and the craft of building well.</description>
+  </channel>
+</rss>

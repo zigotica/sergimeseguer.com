@@ -1,0 +1,32 @@
+---
+import ThoughtsLayout from '../../../layouts/ThoughtsLayout.astro';
+import { getPosts } from '../../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const canonical = `https://sergimeseguer.com/thoughts/${post.slug}/`;
+---
+<ThoughtsLayout
+  title={post.title}
+  description={post.description}
+  canonical={canonical}
+  ogType="article"
+>
+  <main>
+    <article>
+      <header>
+        <p class="post-meta"><time datetime={post.date}>{post.date}</time></p>
+        <h1>{post.title}</h1>
+        <p class="post-description">{post.description}</p>
+      </header>
+      <div class="post-body" set:html={post.html}></div>
+      <footer class="post-footer">
+        <a href="/thoughts/">All thoughts</a>
+      </footer>
+    </article>
+  </main>
+</ThoughtsLayout>

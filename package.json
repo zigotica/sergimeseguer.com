@@ -1,0 +1,17 @@
+{
+  "name": "sergimeseguer-com",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build && node scripts/sync-generated.mjs",
+    "test": "node --test tests/build-check.mjs"
+  },
+  "devDependencies": {
+    "astro": "7.1.3",
+    "rehype-stringify": "^10.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5",
+    "yaml": "^2.9.0"
+  }
+}

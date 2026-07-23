@@ -1,0 +1,69 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  ogType?: 'website' | 'article';
+}
+
+const { title, description, canonical, ogType = 'website' } = Astro.props;
+const siteName = 'Sergi Meseguer';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow" />
+    <title>{title} | {siteName}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={siteName} />
+    <link rel="alternate" type="application/rss+xml" title="Sergi Meseguer Thoughts RSS" href="/thoughts/rss.xml" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <style>
+      :root { color-scheme: light; font-family: system-ui, sans-serif; color: #25211d; background: #f7f3eb; }
+      * { box-sizing: border-box; }
+      body { margin: 0; line-height: 1.65; }
+      a { color: #8c4939; }
+      .thoughts-shell { width: min(44rem, calc(100% - 2rem)); margin: 0 auto; padding: 2rem 0 4rem; }
+      .thoughts-nav { display: flex; gap: 1rem; justify-content: space-between; margin-bottom: 4rem; font: 0.8rem/1.2 monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+      .thoughts-nav a { color: inherit; text-decoration: none; }
+      .thoughts-nav a:hover, .thoughts-nav a:focus { text-decoration: underline; }
+      h1, h2, h3 { line-height: 1.15; font-weight: 600; }
+      h1 { font-size: clamp(2.2rem, 7vw, 4rem); margin: 0 0 1rem; }
+      h2 { font-size: 1.5rem; margin: 0; }
+      .page-intro { margin-bottom: 3rem; }
+      .page-intro p { max-width: 38rem; color: #625a52; }
+      .post-list { display: grid; gap: 2rem; }
+      .post-card { border-top: 1px solid #cfc5b7; padding-top: 1.5rem; }
+      .post-card h2 a { color: inherit; text-decoration: none; }
+      .post-card h2 a:hover, .post-card h2 a:focus { text-decoration: underline; }
+      .post-meta { color: #625a52; font: 0.8rem/1.4 monospace; }
+      .post-description { margin: 0.5rem 0 0; }
+      article > header { margin-bottom: 2.5rem; }
+      article > header h1 { margin-bottom: 0.75rem; }
+      .post-body > :first-child { margin-top: 0; }
+      .post-body > :last-child { margin-bottom: 0; }
+      .post-body h2, .post-body h3 { margin-top: 2rem; }
+      .post-body blockquote { border-left: 3px solid #c9826b; color: #625a52; margin-left: 0; padding-left: 1rem; }
+      .post-body ul, .post-body ol { padding-left: 1.5rem; }
+      .post-body li + li { margin-top: 0.35rem; }
+      .post-footer { border-top: 1px solid #cfc5b7; margin-top: 3rem; padding-top: 1.5rem; }
+    </style>
+  </head>
+  <body>
+    <!-- generated: thoughts-blog-markdown -->
+    <div class="thoughts-shell">
+      <nav class="thoughts-nav" aria-label="Thoughts navigation">
+        <a href="/">Sergi Meseguer</a>
+        <a href="/thoughts/">Thoughts</a>
+      </nav>
+      <slot />
+    </div>
+  </body>
+</html>
