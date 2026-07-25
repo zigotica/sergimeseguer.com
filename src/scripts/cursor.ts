@@ -85,17 +85,22 @@ export function initCursor(): void {
   const hairlineY = cursor.querySelector<HTMLElement>('[data-cursor-hairline-y]');
   if (!ring || !poly || !hairlineX || !hairlineY) return;
 
+  // Keep narrowed DOM refs for event and animation closures.
+  const cursorRing = ring;
+  const cursorPoly = poly;
+  const cursorHairlineX = hairlineX;
+  const cursorHairlineY = hairlineY;
+
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  const isFirefox = /Firefox/i.test(navigator.userAgent);
   const prefersReducedMotion = window.matchMedia
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
 
-  if (isTouchDevice || !isFirefox || prefersReducedMotion) {
-    ring.style.display = 'none';
-    poly.style.display = 'none';
-    hairlineX.style.display = 'none';
-    hairlineY.style.display = 'none';
+  if (isTouchDevice || prefersReducedMotion) {
+    cursorRing.style.display = 'none';
+    cursorPoly.style.display = 'none';
+    cursorHairlineX.style.display = 'none';
+    cursorHairlineY.style.display = 'none';
     return;
   }
 
@@ -120,15 +125,15 @@ export function initCursor(): void {
   document.addEventListener('mousemove', (event) => {
     mx = event.clientX;
     my = event.clientY;
-    hairlineX.style.setProperty('--cursor-y', `${my}px`);
-    hairlineY.style.setProperty('--cursor-x', `${mx}px`);
+    cursorHairlineX.style.setProperty('--cursor-y', `${my}px`);
+    cursorHairlineY.style.setProperty('--cursor-x', `${mx}px`);
   });
 
   function animRing(): void {
     rx += (mx - rx) * 0.12;
     ry += (my - ry) * 0.12;
-    ring.style.setProperty('--cursor-x', `${rx}px`);
-    ring.style.setProperty('--cursor-y', `${ry}px`);
+    cursorRing.style.setProperty('--cursor-x', `${rx}px`);
+    cursorRing.style.setProperty('--cursor-y', `${ry}px`);
 
     morphT += 0.007;
     if (morphT >= 1) {
@@ -143,20 +148,20 @@ export function initCursor(): void {
       (point, index) =>
         `${lerp(point[0], toShape[index][0], et).toFixed(2)},${lerp(point[1], toShape[index][1], et).toFixed(2)}`,
     );
-    poly.setAttribute('points', points.join(' '));
+    cursorPoly.setAttribute('points', points.join(' '));
     requestAnimationFrame(animRing);
   }
 
   document.addEventListener('pointerover', (event) => {
     const current = getInteractiveElement(event.target);
     const previous = getInteractiveElement(event.relatedTarget);
-    if (current && current !== previous) ring.classList.add('is-hovering');
+    if (current && current !== previous) cursorRing.classList.add('is-hovering');
   });
 
   document.addEventListener('pointerout', (event) => {
     const current = getInteractiveElement(event.target);
     const next = getInteractiveElement(event.relatedTarget);
-    if (current && current !== next) ring.classList.remove('is-hovering');
+    if (current && current !== next) cursorRing.classList.remove('is-hovering');
   });
 
   const heroTarget = document.querySelector<HTMLElement>('[data-cursor-target]');
