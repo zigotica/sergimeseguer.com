@@ -10,23 +10,22 @@ const description = 'Thoughts on engineering, products, and the craft of buildin
   description={description}
   canonical="https://sergimeseguer.com/thoughts/"
 >
-  <main>
-    <header class="page-intro">
-      <h1>Thoughts</h1>
-      <p>{description}</p>
-    </header>
-    <section class="post-list" aria-label="Thoughts posts">
-      {posts.length === 0 ? (
-        <p>No thoughts published yet.</p>
-      ) : (
-        posts.map((post) => (
-          <article class="post-card">
-            <p class="post-meta"><time datetime={post.date}>{post.date}</time></p>
-            <h2><a href={`/thoughts/${post.slug}/`}>{post.title}</a></h2>
-            <p class="post-description">{post.description}</p>
-          </article>
-        ))
-      )}
-    </section>
-  </main>
+  <section class="thoughts-index" aria-label="Thoughts posts">
+    <div class="section-container">
+        <div class="thoughts-post-list">
+          {posts.length === 0 ? (
+            <p class="exp-body">No thoughts published yet.</p>
+          ) : (
+            posts.map((post) => (
+              <article class="thoughts-post-card">
+                <p class="thoughts-entry-date"><time datetime={post.date}>{post.date}</time></p>
+                <h2 class="thoughts-entry-title"><a href={`/thoughts/${post.slug}/`}>{post.title}</a></h2>
+                <p class="thoughts-entry-description">{post.description}</p>
+                <a class="thoughts-entry-read-more" href={`/thoughts/${post.slug}/`}>Keep reading</a>
+              </article>
+            ))
+          )}
+        </div>
+    </div>
+  </section>
 </ThoughtsLayout>

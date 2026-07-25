@@ -34,168 +34,19 @@ const siteName = 'Sergi Meseguer';
   <body>
     <Cursor />
     <!-- generated: thoughts-blog-markdown -->
-    <div class="thoughts-shell">
-      <Header
-        ariaLabel="Thoughts navigation"
-        logoText="SERGI MESEGUER"
-        logoHref="/"
-        showMark={true}
-        links={[{ label: 'Thoughts', href: '/thoughts/' }]}
-      />
-      <slot />
-    </div>
+    <main>
+      <div class="thoughts-shell">
+        <Header
+          ariaLabel="Thoughts navigation"
+          logoText="SERGI MESEGUER"
+          logoHref="/"
+          showMark={true}
+          links={[{ label: 'Thoughts', href: '/thoughts/' }]}
+        />
+        <slot />
+      </div>
+    </main>
     <Footer />
   </body>
 </html>
 
-<style>
-  .thoughts-shell {
-    width: min(44rem, calc(100% - 2rem));
-    margin: 0 auto;
-    padding: calc(var(--menu-height) + var(--space-3)) 0 4rem;
-  }
-
-  .thoughts-shell section {
-    padding: 0;
-  }
-
-  .thoughts-shell main {
-    color: var(--color-text-primary);
-  }
-
-  .thoughts-shell a {
-    color: var(--color-accent-gold);
-  }
-
-  .thoughts-shell .nav-logo {
-    color: var(--color-accent-gold);
-  }
-
-  .thoughts-shell .nav-links a {
-    color: var(--color-text-subtle);
-  }
-
-  .thoughts-shell .nav-links a:hover,
-  .thoughts-shell .nav-links a:focus {
-    color: var(--color-text-primary);
-  }
-
-  .thoughts-shell h1,
-  .thoughts-shell h2,
-  .thoughts-shell h3 {
-    line-height: 1.15;
-    font-weight: 400;
-  }
-
-  .thoughts-shell h1 {
-    font: var(--typography-display-4);
-    margin: 0 0 var(--space-2);
-  }
-
-  .thoughts-shell h2 {
-    font: var(--typography-display-2);
-    margin: 0;
-  }
-
-  .thoughts-shell .page-intro {
-    margin-bottom: var(--space-4);
-  }
-
-  .thoughts-shell .page-intro p {
-    max-width: 38rem;
-    color: var(--color-text-muted);
-  }
-
-  .thoughts-shell .post-list {
-    display: grid;
-    gap: var(--space-3);
-  }
-
-  .thoughts-shell .post-card {
-    border-top: var(--border-thin) solid var(--color-border-main);
-    padding-top: var(--space-2);
-  }
-
-  .thoughts-shell .post-card h2 a {
-    color: var(--color-text-primary);
-    text-decoration: none;
-  }
-
-  .thoughts-shell .post-card h2 a:hover,
-  .thoughts-shell .post-card h2 a:focus {
-    color: var(--color-accent-gold);
-    text-decoration: underline;
-  }
-
-  .thoughts-shell .post-meta {
-    color: var(--color-text-subtle);
-    font: var(--typography-label-1);
-  }
-
-  .thoughts-shell .post-description {
-    margin: var(--space-1) 0 0;
-    color: var(--color-text-muted);
-  }
-
-  .thoughts-shell article > header {
-    margin-bottom: var(--space-4);
-  }
-
-  .thoughts-shell article > header h1 {
-    margin-bottom: var(--space-2);
-  }
-
-  .thoughts-shell .post-body {
-    color: var(--color-text-muted);
-  }
-
-  .thoughts-shell .post-body > :first-child {
-    margin-top: 0;
-  }
-
-  .thoughts-shell .post-body > :last-child {
-    margin-bottom: 0;
-  }
-
-  .thoughts-shell .post-body h2,
-  .thoughts-shell .post-body h3 {
-    margin-top: var(--space-3);
-    color: var(--color-text-primary);
-  }
-
-  .thoughts-shell .post-body p,
-  .thoughts-shell .post-body ul,
-  .thoughts-shell .post-body ol,
-  .thoughts-shell .post-body blockquote {
-    margin-block: var(--space-2);
-  }
-
-  .thoughts-shell .post-body blockquote {
-    border-left: var(--border-accent) solid var(--color-accent-primary);
-    color: var(--color-text-muted);
-    margin-left: 0;
-    padding-left: var(--space-2);
-  }
-
-  .thoughts-shell .post-body ul,
-  .thoughts-shell .post-body ol {
-    padding-left: var(--space-3);
-    list-style: revert;
-  }
-
-  .thoughts-shell .post-body li + li {
-    margin-top: var(--space-1);
-  }
-
-  .thoughts-shell .post-body a {
-    color: var(--color-accent-gold);
-    text-decoration: underline;
-    text-underline-offset: 0.25em;
-  }
-
-  .thoughts-shell .post-footer {
-    border-top: var(--border-thin) solid var(--color-border-main);
-    margin-top: var(--space-4);
-    padding-top: var(--space-2);
-  }
-</style>

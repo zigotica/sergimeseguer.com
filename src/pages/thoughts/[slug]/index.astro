@@ -15,18 +15,15 @@ const canonical = `https://sergimeseguer.com/thoughts/${post.slug}/`;
   description={post.description}
   canonical={canonical}
   ogType="article"
->
-  <main>
+  >
+  <section>
     <article>
       <header>
-        <p class="post-meta"><time datetime={post.date}>{post.date}</time></p>
-        <h1>{post.title}</h1>
-        <p class="post-description">{post.description}</p>
-      </header>
+          <p class="thoughts-entry-date"><time datetime={post.date}>{post.date}</time></p>
+          <h1 class="thought-entry-title">{post.title}</h1>
+          <p class="thoughts-entry-description">{post.description}</p>
+        </header>
       <div class="post-body" set:html={post.html}></div>
-      <footer class="post-footer">
-        <a href="/thoughts/">All thoughts</a>
-      </footer>
     </article>
-  </main>
+  </section>
 </ThoughtsLayout>
