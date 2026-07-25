@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Cursor from '../components/Cursor.astro';
 import '../styles/global.css';
 ---
 <!doctype html>
@@ -45,13 +46,7 @@ import '../styles/global.css';
 
 </head>
 <body>
-  <div class="cursor-ring" id="cursorRing" aria-hidden="true">
-    <svg viewBox="0 0 48 48" aria-hidden="true">
-      <polygon id="voronoiPoly" points="24,2 41,7 46,24 39,41 24,46 7,41 2,24 9,7" />
-    </svg>
-  </div>
-  <div class="cursor-hairline cursor-hairline-x" id="cursorHairlineX"></div>
-  <div class="cursor-hairline cursor-hairline-y" id="cursorHairlineY"></div>
+  <Cursor />
 
   <Header
     links={[
@@ -101,7 +96,7 @@ import '../styles/global.css';
           <svg id="voronoiSvg"></svg>
         </div>
 
-        <a class="hero-coord hero-coord-link" href="#contact">41.3874, 2.1686 · BCN</a>
+        <a class="hero-coord hero-coord-link" data-cursor-target href="#contact">41.3874, 2.1686 · BCN</a>
       </div>
       <div class="fragment-divider fragment-divider-hero" role="separator" aria-hidden="true">
         <div class="frag-1"></div>
@@ -627,147 +622,6 @@ import '../styles/global.css';
 
   <Footer />
   <script>
-    const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    const isFirefox = typeof navigator !== "undefined" && /Firefox/i.test(navigator.userAgent);
-
-    function lerp(a, b, t) {
-      return a + (b - a) * t;
-    }
-    function easeInOut(t) {
-      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-    }
-
-    // ── Cursor ──
-    const ring = document.getElementById("cursorRing");
-    const poly = document.getElementById("voronoiPoly");
-    const hairlineX = document.getElementById("cursorHairlineX");
-    const hairlineY = document.getElementById("cursorHairlineY");
-    if (!ring || !poly || !hairlineX || !hairlineY) {
-      // Cursor enhancement unavailable; keep page behavior intact.
-    } else if (isTouchDevice || !isFirefox) {
-      ring.style.display = "none";
-      poly.style.display = "none";
-      hairlineX.style.display = "none";
-      hairlineY.style.display = "none";
-    } else {
-      const ffCursor = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='6' viewBox='0 0 6 6'%3E%3Crect width='6' height='6' fill='%23c9826b'/%3E%3C/svg%3E\") 3 3, auto";
-      document.body.style.cursor = ffCursor;
-      document.querySelectorAll("a, button, [role=\"button\"]").forEach(el => {
-        el.style.cursor = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 6 6'%3E%3Crect width='10' height='10' fill='%23c9826b'/%3E%3C/svg%3E\") 3 3, auto";
-      });
-      const heroCoord = document.querySelector(".hero-coord");
-      let mx = 0,
-        my = 0,
-        rx = 0,
-        ry = 0;
-      let shapeIdx = 0,
-        morphT = 0;
-
-      // Generate a random polygon with n vertices around center 24,24 in 48x48 box
-      function randomShape(n) {
-        const cx = 24,
-          cy = 24,
-          r = 20;
-        const pts = [];
-        for (let i = 0; i < n; i++) {
-          const angle = (i / n) * Math.PI * 2 - Math.PI / 2;
-          const jitter = 0.55 + Math.random() * 0.45;
-          pts.push([
-            cx + Math.cos(angle) * r * jitter,
-            cy + Math.sin(angle) * r * jitter,
-          ]);
-        }
-        return pts;
-      }
-
-      // Resample polygon to exactly n points by linear interpolation along edges
-      function resample(poly, n) {
-        // Compute perimeter
-        const lens = poly.map((p, i) => {
-          const q = poly[(i + 1) % poly.length];
-          return Math.hypot(q[0] - p[0], q[1] - p[1]);
-        });
-        const total = lens.reduce((a, b) => a + b, 0);
-        const step = total / n;
-        const out = [];
-        let seg = 0,
-          segT = 0;
-        for (let i = 0; i < n; i++) {
-          let d = i * step;
-          // Walk along edges
-          let s = 0;
-          for (let j = 0; j < poly.length; j++) {
-            if (d <= lens[j] + 1e-9) {
-              s = j;
-              segT = d / (lens[j] || 1);
-              break;
-            }
-            d -= lens[j];
-          }
-          const a = poly[s],
-            b = poly[(s + 1) % poly.length];
-          out.push([lerp(a[0], b[0], segT), lerp(a[1], b[1], segT)]);
-        }
-        return out;
-      }
-
-      const MAX_PTS = 9; // common count for interpolation
-      let fromShape = resample(randomShape(8), MAX_PTS);
-      let toShape = resample(randomShape(5), MAX_PTS);
-
-      document.addEventListener("mousemove", (e) => {
-        mx = e.clientX;
-        my = e.clientY;
-        hairlineX.style.top = my + "px";
-        hairlineY.style.left = mx + "px";
-      });
-
-      function animRing() {
-        rx += (mx - rx) * 0.12;
-        ry += (my - ry) * 0.12;
-        ring.style.left = rx + "px";
-        ring.style.top = ry + "px";
-        morphT += 0.007;
-        if (morphT >= 1) {
-          morphT = 0;
-          fromShape = toShape;
-          const nextN = 3 + Math.floor(Math.random() * 7); // 3 to 9
-          toShape = resample(randomShape(nextN), MAX_PTS);
-        }
-        const et = easeInOut(morphT);
-        const pts = fromShape.map(
-          (p, i) =>
-            lerp(p[0], toShape[i][0], et).toFixed(2) +
-            "," +
-            lerp(p[1], toShape[i][1], et).toFixed(2),
-        );
-        poly.setAttribute("points", pts.join(" "));
-        requestAnimationFrame(animRing);
-      }
-      animRing();
-
-      document.querySelectorAll("a, button").forEach((el) => {
-        el.addEventListener("mouseenter", () => {
-          ring.style.opacity = "0.5";
-          ring.style.transform = "translate(-50%,-50%) scale(1.4)";
-        });
-        el.addEventListener("mouseleave", () => {
-          ring.style.opacity = "1";
-          ring.style.transform = "translate(-50%,-50%) scale(1)";
-        });
-      });
-
-      if (heroCoord) {
-        heroCoord.addEventListener("mouseenter", () => {
-          document.body.classList.add("cursor-targeting");
-        });
-        heroCoord.addEventListener("mouseleave", () => {
-          document.body.classList.remove("cursor-targeting");
-        });
-      }
-
-    }
-
     // ── Voronoi mosaic (SVG, throttled) ──
     const vSvg = document.getElementById("voronoiSvg");
     const tiles = ["color-tile-1", "color-tile-2", "color-tile-3", "color-tile-4", "color-tile-5", "color-tile-6"];
@@ -777,6 +631,9 @@ import '../styles/global.css';
 
     const STEP = 6;
     const MORPH_FRAMES = 1200;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const easeInOut = (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
     let vW, vH;
     let vShapes = [];
     let voronoiStarted = false;
@@ -1006,6 +863,8 @@ import '../styles/global.css';
           p.setAttribute("fill-opacity", "0");
           p.setAttribute("stroke", "#e7ecf410");
           p.setAttribute("stroke-width", "1");
+          p.setAttribute("data-voronoi-shape", String(si));
+          p.setAttribute("pointer-events", "all");
           p.setAttribute("clip-path", "url(#heroVoronoiClip)");
           p.setAttribute("mask", "url(#heroMask" + si + ")");
           vSvg.appendChild(p);
@@ -1024,7 +883,15 @@ import '../styles/global.css';
         outlinePath.setAttribute("pointer-events", "none");
         vSvg.appendChild(outlinePath);
 
-        const hitRef = outlinePath;
+        // Keep hit geometry separate from visible outline. SVG hit-testing is
+        // unreliable on paths styled with `fill: none` in some browsers.
+        const hitRef = document.createElementNS(ns, "path");
+        hitRef.setAttribute("d", shape.d);
+        hitRef.setAttribute("fill", "transparent");
+        hitRef.setAttribute("fill-opacity", "0");
+        hitRef.setAttribute("transform", transform);
+        hitRef.setAttribute("pointer-events", "none");
+        vSvg.appendChild(hitRef);
 
         const sites = randSites(shapeBBox.x, shapeBBox.y, shapeBBox.w, shapeBBox.h, shapeNCount);
         const targets = sites.map((s) => [
@@ -1048,37 +915,37 @@ import '../styles/global.css';
     const PUSH_STRENGTH = 0.18;
 
     const heroRight = document.querySelector(".hero-right");
-    if (!isTouchDevice && heroRight && vSvg) {
-      heroRight.addEventListener("mousemove", (e) => {
+    if (heroRight && vSvg) {
+      vSvg.addEventListener("pointermove", (e) => {
         if (!vShapes.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
         const rect = vSvg.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
-        // Hit-test in reverse z-order (topmost first); first hit wins.
-        // getScreenCTM().inverse() maps client coords into path local space for isPointInFill.
-        let activeIdx = -1;
-        for (let i = vShapes.length - 1; i >= 0; i--) {
-          const hitPath = vShapes[i].outlinePath;
-          if (!hitPath) continue;
-          try {
-            const ctm = hitPath.getScreenCTM();
-            if (!ctm) continue;
-            const inv = ctm.inverse();
-            const svgPt = vSvg.createSVGPoint();
-            svgPt.x = e.clientX;
-            svgPt.y = e.clientY;
-            const localPt = svgPt.matrixTransform(inv);
-            if (hitPath.isPointInFill(localPt)) {
-              activeIdx = i; break;
+        const hitCell = e.target instanceof Element
+          ? e.target.closest("[data-voronoi-shape]")
+          : null;
+        const shapeId = hitCell?.getAttribute("data-voronoi-shape");
+        let activeIdx = shapeId === null || shapeId === undefined
+          ? -1
+          : vShapes.findIndex((vs) => String(vs.si) === shapeId);
+
+        // Some SVG engines do not dispatch events through masked transparent
+        // cells. Fall back to rendered figure bounds for reliable hover color.
+        if (activeIdx === -1) {
+          for (let i = vShapes.length - 1; i >= 0; i--) {
+            const {x, y, w, h} = vShapes[i].bbox;
+            if (mx >= x && mx <= x + w && my >= y && my <= y + h) {
+              activeIdx = i;
+              break;
             }
-          } catch (err) {continue;}
+          }
         }
         vShapes.forEach((vs, i) => {
-          vs.mouseX = (i === activeIdx) ? mx : -9999;
-          vs.mouseY = (i === activeIdx) ? my : -9999;
+          vs.mouseX = i === activeIdx ? mx : -9999;
+          vs.mouseY = i === activeIdx ? my : -9999;
         });
       });
-      heroRight.addEventListener("mouseleave", () => {
+      vSvg.addEventListener("pointerleave", () => {
         vShapes.forEach((vs) => {vs.mouseX = -9999; vs.mouseY = -9999;});
       });
     }

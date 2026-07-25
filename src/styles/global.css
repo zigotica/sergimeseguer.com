@@ -396,23 +396,31 @@
     /* ── CURSOR ── */
     .cursor-ring {
       position: fixed;
+      inset-block-start: 0;
+      inset-inline-start: 0;
       width: var(--size-cursor-ring);
       height: var(--size-cursor-ring);
       pointer-events: none;
       z-index: var(--z-cursor);
-      transform: translate(-50%, -50%);
-      transition: opacity 0.2s ease, transform var(--base-duration-fast) ease;
-      will-change: transform, left, top, opacity;
-    }
-
-    .cursor-ring.is-hovering {
-      transform: translate(-50%, -50%) scale(1.6);
+      transform: translate3d(var(--cursor-x, 0px), var(--cursor-y, 0px), 0) translate(-50%, -50%);
+      transition: opacity 0.2s ease;
+      will-change: transform, opacity;
     }
 
     .cursor-ring svg {
       width: 100%;
       height: 100%;
       overflow: visible;
+      transition: transform var(--base-duration-fast) ease;
+      transform-origin: center;
+    }
+
+    .cursor-ring.is-hovering {
+      opacity: 0.5;
+    }
+
+    .cursor-ring.is-hovering svg {
+      transform: scale(1.4);
     }
 
     .cursor-ring polygon {
@@ -431,19 +439,21 @@
     }
 
     .cursor-hairline-x {
+      inset-block-start: 0;
       inset-inline-start: 0;
       width: 100vw;
       height: var(--border-thin);
-      transform: translateY(-1px);
-      will-change: transform, top;
+      transform: translate3d(0, var(--cursor-y, 0px), 0) translateY(-1px);
+      will-change: transform;
     }
 
     .cursor-hairline-y {
       inset-block-start: 0;
+      inset-inline-start: 0;
       width: var(--border-thin);
       height: var(--vh-full);
-      transform: translateX(-1px);
-      will-change: transform, left;
+      transform: translate3d(var(--cursor-x, 0px), 0, 0) translateX(-1px);
+      will-change: transform;
     }
 
     .cursor-targeting .cursor-hairline {
