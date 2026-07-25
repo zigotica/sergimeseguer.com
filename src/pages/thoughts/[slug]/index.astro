@@ -20,8 +20,8 @@ const canonical = `https://sergimeseguer.com/thoughts/${post.slug}/`;
     <article>
       <header>
           <p class="thoughts-entry-date"><time datetime={post.date}>{post.date}</time></p>
-          <h1 class="thought-entry-title">{post.title}</h1>
-          <p class="thoughts-entry-description">{post.description}</p>
+          <h1 class="thought-entry-title" set:html={post.titleHtml}></h1>
+          <p class="thoughts-entry-description" set:html={post.descriptionHtml}></p>
         </header>
       <div class="post-body" set:html={post.html}></div>
     </article>

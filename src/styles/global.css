@@ -1511,10 +1511,31 @@
   font: var(--typography-display-4);
   margin-block-end: var(--space-3);
 }
+.thoughts-entry-title em {
+  font-style: italic;
+  color: var(--color-accent-gold);
+}
+.thought-entry-title em {
+  font-style: italic;
+  color: var(--color-accent-gold);
+}
+.thoughts-entry-title strong {
+  font-weight: 700;
+}
+.thought-entry-title strong {
+  font-weight: 700;
+}
 .thoughts-entry-description,
 .thoughts-shell .post-body {
   font: var(--typography-body-2);
   color: var(--color-text-muted);
+}
+.thoughts-entry-description em {
+  font-style: italic;
+}
+.thoughts-entry-description strong {
+  color: var(--color-accent-primary);
+  font-weight: 400;
 }
 .thoughts-entry-read-more {
   display: block;
@@ -1559,6 +1580,13 @@
 .thoughts-shell .post-body ul,
 .thoughts-shell .post-body ol { padding-inline-start: var(--space-3); list-style: revert; }
 .thoughts-shell .post-body li + li { margin-block-start: var(--space-1); }
+.thoughts-shell .post-body em {
+  font-style: italic;
+}
+.thoughts-shell .post-body strong {
+  color: var(--color-accent-primary);
+  font-weight: 400;
+}
 .thoughts-shell .post-body a {
   color: var(--color-accent-gold);
   text-decoration: underline;
@@ -1567,4 +1595,11 @@
 .thoughts-shell .post-body a:hover,
 .thoughts-shell .post-body a:focus {
   color: var(--color-accent-primary);
+}
+
+.thoughts-shell .post-body a.hero-coord {
+  position: relative;
+  display: inline;
+  inset: unset;
+  color: var(--color-accent-info) !important;
 }

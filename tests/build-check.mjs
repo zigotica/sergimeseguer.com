@@ -22,6 +22,8 @@ slug: fixture-post
 # Heading
 
 Raw <em>HTML</em>, **strong**, *emphasis*, and [link](https://example.com).
+
+<a class="fixture-link" data-cursor-target href="#contact" style="color: red">Raw link</a>, <code class="language-js">raw code</code><br>next line.
 `;
 
 function build(env = {}) {
@@ -89,8 +91,11 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     assert.match(postHtml, /data-cursor(?:="true")?(?:\s|>)/);
     assert.match(postHtml, /data-cursor-polygon/);
     assert.match(postHtml, /Raw &#x3C;em>HTML&#x3C;\/em>/);
+    assert.match(postHtml, /<a href="#contact" class="fixture-link" data-cursor-target>Raw link<\/a>/);
+    assert.match(postHtml, /<code class="language-js">raw code<\/code><br>next line\./);
+    assert.doesNotMatch(postHtml, /fixture-link[^>]*style=/);
     assert.doesNotMatch(postHtml, /astro-island/);
-    assert.match(thoughtsIndex, /Fixture &lt;post&gt;/);
+    assert.match(thoughtsIndex, /Fixture (?:&lt;|&#x3C;)post>/);
     assert.match(thoughtsIndex, /id="contact"/);
     assert.match(thoughtsIndex, /href="#contact"/);
     assert.match(thoughtsIndex, /data-cursor(?:="true")?(?:\s|>)/);

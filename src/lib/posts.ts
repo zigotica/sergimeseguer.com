@@ -3,13 +3,16 @@ import { join } from 'node:path';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
+import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import { parse as parseYaml } from 'yaml';
 
 export interface ThoughtPost {
   title: string;
+  titleHtml: string;
   date: string;
   description: string;
+  descriptionHtml: string;
   slug: string;
   html: string;
   sourcePath: string;
@@ -17,6 +20,7 @@ export interface ThoughtPost {
 
 const POSTS_DIRECTORY = join(process.cwd(), '_thoughts', 'posts');
 const REQUIRED_FIELDS = ['title', 'date', 'description', 'slug'] as const;
+const ALLOWED_HTML_TAGS = ['a', 'br', 'code'];
 const ALLOWED_NODES = new Set([
   'root',
   'heading',
@@ -120,7 +124,12 @@ function safeLink(url: string): string | undefined {
 }
 
 function sanitizeNode(node: any): any {
-  if (node.type === 'html') return { type: 'text', value: node.value };
+  if (node.type === 'html') {
+    const tag = node.value.match(/^<\/?([a-z][\w-]*)\b/i)?.[1]?.toLowerCase();
+    return tag && ALLOWED_HTML_TAGS.includes(tag)
+      ? node
+      : { type: 'text', value: node.value };
+  }
   if (node.type === 'code' || node.type === 'inlineCode') {
     return { type: 'text', value: node.value };
   }
@@ -139,9 +148,46 @@ function sanitizeNode(node: any): any {
   return node;
 }
 
+function plainMarkdownText(value: string): string {
+  const tree = unified().use(remarkParse).parse(value);
+  return textContent(sanitizeNode(tree)).trim();
+}
+
+async function renderInlineMarkdown(sourcePath: string, value: string): Promise<string> {
+  const html = await renderMarkdown(sourcePath, value);
+  return html.replace(/^<p>([\s\S]*)<\/p>\n?$/, '$1');
+}
+
+function sanitizeHtmlTree(node: any): any {
+  if (node.type === 'root') {
+    return { ...node, children: node.children.flatMap(sanitizeHtmlTree) };
+  }
+  if (node.type !== 'element') return node;
+
+  const children = (node.children ?? []).flatMap(sanitizeHtmlTree);
+  if (!ALLOWED_HTML_TAGS.includes(node.tagName)) return { ...node, children };
+
+  const properties: Record<string, unknown> = {};
+  if (node.tagName === 'a') {
+    const href = typeof node.properties?.href === 'string' ? safeLink(node.properties.href) : undefined;
+    if (href) properties.href = href;
+    if (node.properties?.className) properties.className = node.properties.className;
+    if (node.properties?.dataCursorTarget !== undefined) properties.dataCursorTarget = '';
+  }
+  if (node.tagName === 'code' && node.properties?.className) {
+    properties.className = node.properties.className;
+  }
+  return { ...node, children, properties };
+}
+
 async function renderMarkdown(sourcePath: string, body: string): Promise<string> {
   try {
-    const processor = unified().use(remarkParse).use(remarkRehype, { allowDangerousHtml: false }).use(rehypeStringify);
+    const processor = unified()
+      .use(remarkParse)
+      .use(remarkRehype, { allowDangerousHtml: true })
+      .use(rehypeRaw)
+      .use(() => (tree) => sanitizeHtmlTree(tree))
+      .use(rehypeStringify);
     const tree = processor.parse(body);
     const sanitizedTree = sanitizeNode(tree);
     const result = await processor.run(sanitizedTree);
@@ -164,11 +210,15 @@ async function loadPostsUncached(): Promise<ThoughtPost[]> {
     const sourcePath = join(POSTS_DIRECTORY, name);
     const { frontmatter, body } = parseSource(sourcePath);
     for (const field of REQUIRED_FIELDS) requiredString(sourcePath, frontmatter, field);
+    const titleSource = requiredString(sourcePath, frontmatter, 'title');
+    const descriptionSource = requiredString(sourcePath, frontmatter, 'description');
     return {
       sourcePath,
-      title: requiredString(sourcePath, frontmatter, 'title'),
+      title: plainMarkdownText(titleSource),
+      titleSource,
       date: validateDate(sourcePath, requiredString(sourcePath, frontmatter, 'date')),
-      description: requiredString(sourcePath, frontmatter, 'description'),
+      description: plainMarkdownText(descriptionSource),
+      descriptionSource,
       slug: validateSlug(sourcePath, requiredString(sourcePath, frontmatter, 'slug')),
       body,
     };
@@ -187,6 +237,8 @@ async function loadPostsUncached(): Promise<ThoughtPost[]> {
       date: post.date,
       description: post.description,
       slug: post.slug,
+      titleHtml: await renderInlineMarkdown(post.sourcePath, post.titleSource),
+      descriptionHtml: await renderInlineMarkdown(post.sourcePath, post.descriptionSource),
       html: await renderMarkdown(post.sourcePath, post.body),
       sourcePath: post.sourcePath,
     })),
@@ -195,6 +247,7 @@ async function loadPostsUncached(): Promise<ThoughtPost[]> {
 }
 
 export function getPosts(): Promise<ThoughtPost[]> {
+  if (import.meta.env.DEV) return loadPostsUncached();
   postsPromise ??= loadPostsUncached();
   return postsPromise;
 }

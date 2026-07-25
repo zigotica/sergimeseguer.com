@@ -19,8 +19,8 @@ const description = 'Thoughts on engineering, products, and the craft of buildin
             posts.map((post) => (
               <article class="thoughts-post-card">
                 <p class="thoughts-entry-date"><time datetime={post.date}>{post.date}</time></p>
-                <h2 class="thoughts-entry-title"><a href={`/thoughts/${post.slug}/`}>{post.title}</a></h2>
-                <p class="thoughts-entry-description">{post.description}</p>
+                <h2 class="thoughts-entry-title"><a href={`/thoughts/${post.slug}/`} set:html={post.titleHtml}></a></h2>
+                <p class="thoughts-entry-description" set:html={post.descriptionHtml}></p>
                 <a class="thoughts-entry-read-more" href={`/thoughts/${post.slug}/`}>Keep reading</a>
               </article>
             ))
