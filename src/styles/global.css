@@ -357,6 +357,18 @@
       src: url('/fonts/ibm-plex-sans-400-italic.woff') format('woff');
     }
 
+    @view-transition {
+      navigation: auto;
+    }
+
+    ::view-transition-old(root)  {
+      animation-duration: 1s;
+    }
+
+    ::view-transition-new(root) {
+      animation-duration: 2.5s;
+    }
+
     html {
       font-size: 62.5%;
       scroll-behavior: smooth;
