@@ -363,11 +363,14 @@
     }
 
     body {
+      position: relative;
       background-color: var(--color-bg-nav);
       color: var(--color-text-primary);
       font: var(--typography-body-2);
       overflow-x: hidden;
       cursor: var(--base-cursor-svg);
+      min-height: 100dvh;
+      padding-block-end: var(--space-4);
     }
 
     a,
@@ -1053,7 +1056,7 @@
     /* ── CONTACT ── */
     #contact {
       display: flex;
-      min-height: 80dvh;
+      min-height: 85dvh;
       background: var(--color-bg-contact);
     }
 
@@ -1145,7 +1148,9 @@
 
     /* ── FOOTER ── */
     body>footer {
-      position: relative;
+      position: absolute;
+      width: 100%;
+      bottom: 0;
       background: var(--color-bg-footer);
       padding-block: var(--space-3);
     }
