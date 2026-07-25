@@ -15,6 +15,6 @@ Post content.
 
 Dates use `YYYY-MM-DD`, cannot be future dates, and slugs use lowercase ASCII letters, numbers, and hyphens. Supported Markdown is limited to headings, paragraphs, lists, links, emphasis, and blockquotes. Raw HTML and unsupported constructs render as text.
 
-Run `npm install`, then `npm run build` before committing. Astro builds into ignored `.astro-build/`; the post-build sync writes committed `thoughts/`, `thoughts/rss.xml`, and `sitemap.xml` output into repository paths. Generated output must be committed. No client JavaScript or browser framework runtime is used for Thoughts pages.
+Run `npm install`, then `npm run build` with Node `26.1.0` before merging. Astro writes static output to ignored `.astro-build/`. The build copies hand-authored root `index.html` and root assets into that output; generated Thoughts pages, RSS, and sitemap stay out of committed repository paths.
 
-GitHub Pages remains managed by repository Pages settings. No custom deployment workflow is required.
+Merge Markdown changes to `master` to trigger Cloudflare Pages production build. Cloudflare publishes `.astro-build/` with no adapter, server runtime, or client framework. See [DEPLOYMENT.md](DEPLOYMENT.md) for Pages settings and domain cutover.

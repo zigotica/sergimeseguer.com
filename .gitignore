@@ -2,5 +2,6 @@
 .ai/
 .astro/
 .astro-build/
+/thoughts/
+/sitemap.xml
 node_modules/
-.thoughts-sync-*

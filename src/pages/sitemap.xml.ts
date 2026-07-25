@@ -5,17 +5,29 @@ import { getPosts } from '../lib/posts';
 const escapeXml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
 
-const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 const LEGACY_HOME_LASTMOD = '2026-06-29';
 
-function homepageLastmod() {
+function isValidIsoDate(value: string): boolean {
+  const match = ISO_DATE.exec(value);
+  if (!match) return false;
+  const [, year, month, day] = match;
+  const parsed = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
+  return (
+    parsed.getUTCFullYear() === Number(year) &&
+    parsed.getUTCMonth() === Number(month) - 1 &&
+    parsed.getUTCDate() === Number(day)
+  );
+}
+
+export function homepageLastmod(): string {
   try {
     const date = execFileSync('git', ['log', '-1', '--format=%cs', '--', 'index.html'], {
       cwd: process.cwd(),
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
     }).trim();
-    return ISO_DATE.test(date) ? date : LEGACY_HOME_LASTMOD;
+    return isValidIsoDate(date) ? date : LEGACY_HOME_LASTMOD;
   } catch {
     return LEGACY_HOME_LASTMOD;
   }
