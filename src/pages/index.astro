@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Contact from '../components/Contact.astro';
 import Cursor from '../components/Cursor.astro';
 import '../styles/global.css';
 ---
@@ -581,43 +582,7 @@ import '../styles/global.css';
     </div>
 
     <!-- CONTACT -->
-    <section id="contact">
-      <div class="contact-container">
-        <div>
-          <h2 class="section-label">Contact</h2>
-          <p class="contact-body">
-            <strong>I'm looking for the next team where I can help shape architecture,
-              engineering culture, and product delivery.</strong>
-            I enjoy conversations about product thinking, AI-assisted development workflows,
-            and the craft of building teams and systems that ship well. I also experiment with hardware and personal tools on the side.
-            Barcelona-based, working remotely across time zones.
-          </p>
-          <nav class="contact-links" aria-label="Contact links">
-            <ul>
-              <li><a class="contact-link" href="mailto:zigotica@gmail.com">
-                  zigotica@gmail.com
-                  <span>Email →</span>
-                </a></li>
-              <li><a class="contact-link" href="https://www.linkedin.com/in/sergimeseguer/" target="_blank"
-                  rel="noopener noreferrer">
-                  linkedin.com/in/sergimeseguer
-                  <span>LinkedIn →</span>
-                </a></li>
-              <li><a class="contact-link" href="https://github.com/zigotica" target="_blank" rel="noopener noreferrer">
-                  github.com/zigotica
-                  <span>GitHub →</span>
-                </a></li>
-            </ul>
-          </nav>
-        </div>
-        <div class="contact-right">
-          <p class="contact-large">
-            Much of the work is deciding what matters.<br />
-            <strong>Let's talk.</strong>
-          </p>
-        </div>
-      </div>
-    </section>
+    <Contact />
   </main>
 
   <Footer />

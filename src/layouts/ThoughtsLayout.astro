@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Contact from '../components/Contact.astro';
 import Cursor from '../components/Cursor.astro';
 import '../styles/global.css';
 
@@ -39,13 +40,14 @@ const siteName = 'Sergi Meseguer';
       logoText="SERGI MESEGUER"
       logoHref="/"
       showMark={true}
-      links={[{ label: 'Thoughts', href: '/thoughts/' }]}
+      links={[{ label: 'Thoughts', href: '/thoughts/' }, { label: 'Contact', href: '#contact' }]}
     />
     <main>
       <div class="thoughts-shell">
         <slot />
       </div>
     </main>
+    <Contact />
     <Footer />
   </body>
 </html>

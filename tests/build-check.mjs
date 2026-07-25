@@ -84,11 +84,15 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     assert.ok((await readFile(join(outputDirectory, 'sergi-meseguer.jpg'))).length > 0);
     assert.ok((await readFile(join(outputDirectory, 'fonts', 'playfair-roman.woff2'))).length > 0);
     assert.match(postHtml, /canonical.*thoughts\/fixture-post\//);
+    assert.match(postHtml, /id="contact"/);
+    assert.match(postHtml, /href="#contact"/);
     assert.match(postHtml, /data-cursor(?:="true")?(?:\s|>)/);
     assert.match(postHtml, /data-cursor-polygon/);
     assert.match(postHtml, /Raw &#x3C;em>HTML&#x3C;\/em>/);
     assert.doesNotMatch(postHtml, /astro-island/);
     assert.match(thoughtsIndex, /Fixture &lt;post&gt;/);
+    assert.match(thoughtsIndex, /id="contact"/);
+    assert.match(thoughtsIndex, /href="#contact"/);
     assert.match(thoughtsIndex, /data-cursor(?:="true")?(?:\s|>)/);
     assert.match(thoughtsIndex, /data-cursor-polygon/);
     assert.match(rss, /fixture-post/);
