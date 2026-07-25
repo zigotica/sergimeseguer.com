@@ -1,4 +1,4 @@
-import { chmod, cp, mkdtemp, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import { chmod, cp, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -67,16 +67,19 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     assert.equal(build({ PATH: git.path }).status, 0);
 
     const homepage = await readFile(join(outputDirectory, 'index.html'), 'utf8');
-    const sourceHomepage = await readFile(join(root, 'index.html'), 'utf8');
     const postHtml = await readFile(join(outputDirectory, 'thoughts', 'fixture-post', 'index.html'), 'utf8');
     const thoughtsIndex = await readFile(join(outputDirectory, 'thoughts', 'index.html'), 'utf8');
     const rss = await readFile(join(outputDirectory, 'thoughts', 'rss.xml'), 'utf8');
     const sitemap = await readFile(join(outputDirectory, 'sitemap.xml'), 'utf8');
 
-    assert.equal(homepage, sourceHomepage);
-    assert.deepEqual(await readFile(join(outputDirectory, 'favicon.ico')), await readFile(join(root, 'favicon.ico')));
-    assert.deepEqual(await readFile(join(outputDirectory, 'sergi-meseguer.jpg')), await readFile(join(root, 'sergi-meseguer.jpg')));
-    assert.deepEqual(await readFile(join(outputDirectory, 'fonts', 'playfair-roman.woff2')), await readFile(join(root, 'fonts', 'playfair-roman.woff2')));
+    assert.match(homepage, /Sergi[\s\S]*Meseguer/);
+    assert.match(homepage, /Engineering Lead · Barcelona · Remote/);
+    assert.match(homepage, /id="voronoiSvg"/);
+    assert.match(homepage, /href="\/thoughts\/"/);
+    assert.match(homepage, /© 2026 Sergi Meseguer/);
+    assert.ok((await readFile(join(outputDirectory, 'favicon.ico'))).length > 0);
+    assert.ok((await readFile(join(outputDirectory, 'sergi-meseguer.jpg'))).length > 0);
+    assert.ok((await readFile(join(outputDirectory, 'fonts', 'playfair-roman.woff2'))).length > 0);
     assert.match(postHtml, /canonical.*thoughts\/fixture-post\//);
     assert.match(postHtml, /Raw &#x3C;em>HTML&#x3C;\/em>/);
     assert.doesNotMatch(postHtml, /<script|astro-island/);
@@ -120,17 +123,15 @@ test('sitemap uses deterministic fallback for invalid Git metadata', async () =>
   }
 });
 
-test('build fails with filename-specific error when root homepage is missing', async () => {
+test('build owns homepage output without legacy root index.html', async () => {
   const restoreOutput = await preserveOutput();
-  const homepage = join(root, 'index.html');
-  const missing = join(root, '.index.html.missing');
-  await rename(homepage, missing);
   try {
-    const result = build();
-    assert.notEqual(result.status, 0);
-    assert.match(result.output, /Required deployment input is missing: index\.html/);
+    assert.equal(existsSync(join(root, 'index.html')), false);
+    assert.equal(build().status, 0);
+    const homepage = await readFile(join(outputDirectory, 'index.html'), 'utf8');
+    assert.match(homepage, /Sergi[\s\S]*Meseguer/);
+    assert.match(homepage, /id="contact"/);
   } finally {
-    await rename(missing, homepage);
     await restoreOutput();
   }
 });

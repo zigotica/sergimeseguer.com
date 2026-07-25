@@ -22,7 +22,7 @@ function isValidIsoDate(value: string): boolean {
 
 export function homepageLastmod(): string {
   try {
-    const date = execFileSync('git', ['log', '-1', '--format=%cs', '--', 'index.html'], {
+    const date = execFileSync('git', ['log', '-1', '--format=%cs', '--', 'src/pages/index.astro'], {
       cwd: process.cwd(),
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],

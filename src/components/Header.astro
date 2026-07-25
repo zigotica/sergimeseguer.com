@@ -1,0 +1,40 @@
+---
+interface NavLink {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  links: NavLink[];
+  logoText?: string;
+  logoHref?: string;
+  ariaLabel?: string;
+  showMark?: boolean;
+}
+
+const {
+  links,
+  logoText = 'SERGI MESEGUER',
+  logoHref = '#hero',
+  ariaLabel = 'Main menu',
+  showMark = true,
+} = Astro.props;
+---
+<nav class="main-nav" aria-label={ariaLabel}>
+  <div class="nav-container">
+    <a class="nav-logo" href={logoHref}>
+      {showMark && (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <polygon points="10,2 22,7 20,21 4,19 2,10" stroke="#f0d399" stroke-width="1" fill="none" />
+          <rect x="10" y="10" width="4" height="4" fill="#c9826b" />
+        </svg>
+      )}
+      {logoText}
+    </a>
+    <ul class="nav-links">
+      {links.map((link) => (
+        <li><a href={link.href}>{link.label}</a></li>
+      ))}
+    </ul>
+  </div>
+</nav>

@@ -12,7 +12,7 @@ Configure Cloudflare Pages Git integration with GitHub repository `zigotica/serg
 - Node.js version: `26.1.0` (`.nvmrc`, `.node-version`, and `package.json` engines match)
 - Preview deployments: disabled for pull requests and non-production branches
 
-Build uses Astro static output. It copies hand-authored root `index.html`, `fonts/`, `favicon.ico`, and `sergi-meseguer.jpg` into `.astro-build/`. Output also contains generated Thoughts pages, RSS, and sitemap. Source files, scripts, tests, and `node_modules` are not deployable output.
+Build uses Astro static output. Astro generates homepage and Thoughts routes from `src/pages/`, while assets under `public/` are emitted at their root-relative URLs. Output contains homepage, generated Thoughts pages, RSS, sitemap, fonts, favicon, and profile image. Source files, tests, and `node_modules` are not deployable output.
 
 Cloudflare Pages serves output through its CDN. Attach custom domain `sergimeseguer.com` in Pages, configure the DNS record Cloudflare requests for the Pages project, and wait for custom-domain activation and an automatic HTTPS certificate. Verify these URLs before cutover:
 
@@ -26,6 +26,6 @@ Keep GitHub Pages and its `CNAME` configuration until custom-domain content and 
 
 ## Publishing Thoughts
 
-Posts remain Markdown files in `_thoughts/posts/*.md`. Run `npm install` and `npm run build` locally with Node `26.1.0` to validate them. Merge valid Markdown to `master`; Cloudflare Pages runs production build and publishes `.astro-build/`. Generated Thoughts pages, RSS, and sitemap are not committed.
+Posts remain Markdown files in `_thoughts/posts/*.md`. Run `npm install` and `npm run build` locally with Node `26.1.0` to validate them. Merge valid Markdown to `master`; Cloudflare Pages runs production build and publishes `.astro-build/`. Astro owns homepage generation; `public/` owns root-relative deployed assets. Generated Thoughts pages, RSS, and sitemap are not committed.
 
 If a production build fails, Cloudflare keeps previous successful deployment live. Roll back by selecting that deployment in Pages and activating it, then fix source Markdown before the next merge.

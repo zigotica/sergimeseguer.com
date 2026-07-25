@@ -6,7 +6,7 @@
     "node": "26.1.0"
   },
   "scripts": {
-    "build": "astro build && node scripts/copy-root-assets.mjs",
+    "build": "astro build",
     "test": "node --test tests/build-check.mjs"
   },
   "devDependencies": {
