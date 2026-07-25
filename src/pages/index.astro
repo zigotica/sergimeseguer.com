@@ -584,7 +584,8 @@ import '../styles/global.css';
       getComputedStyle(document.documentElement).getPropertyValue(`--${t}`).trim(),
     );
 
-    const STEP = 6;
+    // Updating every cell means O(n²) clipping per shape. Keep idle morph cheap.
+    const STEP = 10;
     const MORPH_FRAMES = 1200;
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const lerp = (a, b, t) => a + (b - a) * t;
@@ -700,34 +701,6 @@ import '../styles/global.css';
       );
     }
 
-    // Build a gold outline SVG filter
-    function makeOutlineFilter(ns, id) {
-      const f = document.createElementNS(ns, "filter");
-      f.setAttribute("id", id);
-      f.setAttribute("x", "-5%"); f.setAttribute("y", "-5%");
-      f.setAttribute("width", "110%"); f.setAttribute("height", "110%");
-      const dilate = document.createElementNS(ns, "feMorphology");
-      dilate.setAttribute("in", "SourceAlpha");
-      dilate.setAttribute("operator", "dilate");
-      dilate.setAttribute("radius", "2");
-      dilate.setAttribute("result", "dilated");
-      f.appendChild(dilate);
-      const xor = document.createElementNS(ns, "feComposite");
-      xor.setAttribute("in", "dilated"); xor.setAttribute("in2", "SourceAlpha");
-      xor.setAttribute("operator", "xor"); xor.setAttribute("result", "ring");
-      f.appendChild(xor);
-      const flood = document.createElementNS(ns, "feFlood");
-      flood.setAttribute("flood-color", "#f0d399");
-      flood.setAttribute("flood-opacity", "0.95");
-      flood.setAttribute("result", "outlineColor");
-      f.appendChild(flood);
-      const col = document.createElementNS(ns, "feComposite");
-      col.setAttribute("in", "outlineColor"); col.setAttribute("in2", "ring");
-      col.setAttribute("operator", "in");
-      f.appendChild(col);
-      return f;
-    }
-
     function initVoronoi() {
       const ns = "http://www.w3.org/2000/svg";
       if (!vSvg || !vSvg.parentElement) return false;
@@ -782,7 +755,6 @@ import '../styles/global.css';
         maskPath.setAttribute("transform", transform);
         mask.appendChild(maskPath);
         defs.appendChild(mask);
-        defs.appendChild(makeOutlineFilter(ns, "heroFilter" + si));
       });
       vSvg.appendChild(defs);
 
@@ -810,6 +782,14 @@ import '../styles/global.css';
         backdrop.setAttribute("mask", "url(#heroMask" + si + ")");
         vSvg.appendChild(backdrop);
 
+        // Mask once per figure. Masking every cell forces Chrome to repaint and
+        // composite hundreds of SVG layers on every hover frame.
+        const cells = document.createElementNS(ns, "g");
+        cells.setAttribute("mask", "url(#heroMask" + si + ")");
+        cells.setAttribute("clip-path", "url(#heroVoronoiClip)");
+        cells.setAttribute("pointer-events", "none");
+        vSvg.appendChild(cells);
+
         const paths = [];
         for (let i = 0; i < shapeNCount; i++) {
           const p = document.createElementNS(ns, "path");
@@ -818,11 +798,8 @@ import '../styles/global.css';
           p.setAttribute("fill-opacity", "0");
           p.setAttribute("stroke", "#e7ecf410");
           p.setAttribute("stroke-width", "1");
-          p.setAttribute("data-voronoi-shape", String(si));
-          p.setAttribute("pointer-events", "all");
-          p.setAttribute("clip-path", "url(#heroVoronoiClip)");
-          p.setAttribute("mask", "url(#heroMask" + si + ")");
-          vSvg.appendChild(p);
+          p.setAttribute("pointer-events", "none");
+          cells.appendChild(p);
           paths.push(p);
         }
 
@@ -838,16 +815,6 @@ import '../styles/global.css';
         outlinePath.setAttribute("pointer-events", "none");
         vSvg.appendChild(outlinePath);
 
-        // Keep hit geometry separate from visible outline. SVG hit-testing is
-        // unreliable on paths styled with `fill: none` in some browsers.
-        const hitRef = document.createElementNS(ns, "path");
-        hitRef.setAttribute("d", shape.d);
-        hitRef.setAttribute("fill", "transparent");
-        hitRef.setAttribute("fill-opacity", "0");
-        hitRef.setAttribute("transform", transform);
-        hitRef.setAttribute("pointer-events", "none");
-        vSvg.appendChild(hitRef);
-
         const sites = randSites(shapeBBox.x, shapeBBox.y, shapeBBox.w, shapeBBox.h, shapeNCount);
         const targets = sites.map((s) => [
           Math.max(shapeBBox.x, Math.min(shapeBBox.x + shapeBBox.w, s[0] + (Math.random() - 0.5) * shapeBBox.w * 0.18)),
@@ -857,10 +824,9 @@ import '../styles/global.css';
           const pd = cellPath(i, sites, shapeNCount, shapeBBox);
           if (pd) paths[i].setAttribute("d", pd);
         }
-        // Store si so we can look up the mask path for hit-testing
         const avgCellSide = Math.sqrt((shapeBBox.w * shapeBBox.h) / shapeNCount);
         const influenceR = Math.max(40, avgCellSide * 1.5);
-        vShapes.push({si, n: shapeNCount, bbox: shapeBBox, influenceR, sites, targets, paths, colors, frame: 0, mouseX: -9999, mouseY: -9999, outlinePath: hitRef});
+        vShapes.push({si, n: shapeNCount, bbox: shapeBBox, influenceR, sites, targets, paths, colors, frame: 0, mouseX: -9999, mouseY: -9999});
       });
 
       return true;
@@ -876,23 +842,14 @@ import '../styles/global.css';
         const rect = vSvg.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
-        const hitCell = e.target instanceof Element
-          ? e.target.closest("[data-voronoi-shape]")
-          : null;
-        const shapeId = hitCell?.getAttribute("data-voronoi-shape");
-        let activeIdx = shapeId === null || shapeId === undefined
-          ? -1
-          : vShapes.findIndex((vs) => String(vs.si) === shapeId);
-
-        // Some SVG engines do not dispatch events through masked transparent
-        // cells. Fall back to rendered figure bounds for reliable hover color.
-        if (activeIdx === -1) {
-          for (let i = vShapes.length - 1; i >= 0; i--) {
-            const {x, y, w, h} = vShapes[i].bbox;
-            if (mx >= x && mx <= x + w && my >= y && my <= y + h) {
-              activeIdx = i;
-              break;
-            }
+        // Avoid Chrome hit-testing hundreds of masked transparent paths.
+        // Topmost rendered figure wins when bounding boxes overlap.
+        let activeIdx = -1;
+        for (let i = vShapes.length - 1; i >= 0; i--) {
+          const {x, y, w, h} = vShapes[i].bbox;
+          if (mx >= x && mx <= x + w && my >= y && my <= y + h) {
+            activeIdx = i;
+            break;
           }
         }
         vShapes.forEach((vs, i) => {
