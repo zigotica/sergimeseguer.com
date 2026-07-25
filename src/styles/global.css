@@ -212,9 +212,10 @@
       --typography-label-3: 400 1.5rem / 2rem "IBM Plex Mono";
 
       /* Body (IBM Plex Sans) - long text */
-      --typography-body-1: 300 1.2rem / 2rem "IBM Plex Sans";
+      --typography-body-1: 300 1.3rem / 2rem "IBM Plex Sans";
       --typography-body-2: 300 1.6rem / 3rem "IBM Plex Sans";
       --typography-body-3: 300 2rem / 3rem "IBM Plex Sans";
+      --typography-body-4: 300 2.4rem / 3rem "IBM Plex Sans";
 
       /* Display (Playfair Display) - titles */
       --typography-display-1: 400 1.6rem / 2rem "Playfair Display";
@@ -1473,7 +1474,7 @@
 
 /* ── THOUGHTS ── */
 .thoughts-shell {
-  max-width: 900px;
+  max-width: 920px;
   padding-block-start: var(--menu-height);
   margin-inline: auto;
   color: var(--color-text-primary);
@@ -1507,16 +1508,18 @@
   max-width: var(--size-section-rule);
 }
 .thoughts-entry-title {
-  font: var(--typography-display-2);
+  font: var(--typography-display-3);
   margin-block-end: var(--space-3);
 }
 .thoughts-entry-title a {
   color: var(--color-text-primary);
   text-decoration: underline;
   text-decoration-color: transparent;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 0.5rem;
+  transition: text-decoration-color 0.25s linear;
 }
-.thoughts-entry-title a:hover,
-.thoughts-entry-title a:focus {
+.thoughts-entry-title a:hover {
   text-decoration-color: currentColor;
 }
 .thought-entry-title {
@@ -1537,11 +1540,11 @@
 .thought-entry-title strong {
   font-weight: 700;
 }
-.thoughts-entry-description,
-.thoughts-shell .post-body {
-  font: var(--typography-body-2);
+.thoughts-entry-description {
+  font: var(--typography-body-3);
   color: var(--color-text-muted);
 }
+
 .thoughts-entry-description em {
   font-style: italic;
 }
@@ -1552,28 +1555,30 @@
 .thoughts-entry-read-more {
   display: block;
   margin-block-start: var(--space-2);
-  font: var(--typography-label-2);
+  font: var(--typography-label-1);
   text-transform: uppercase;
   color: var(--color-accent-gold);
-  text-underline-offset: 0.8rem;
 }
 .thoughts-entry-read-more:hover {
   color: var(--color-accent-primary);
+}
+.thoughts-shell .post-body {
+  margin-block-start: var(--space-5);
+  font: var(--typography-body-3);
+  color: var(--color-text-muted);
 }
 .thoughts-shell > article {
   width: min(44rem, calc(100% - 2rem));
   margin-inline: auto;
   padding-block: var(--space-section-y);
 }
-.thoughts-shell article > header { margin-block-end: var(--space-4); }
-.thoughts-shell .post-body > :first-child { margin-block-start: 0; }
 .thoughts-shell .post-body > :last-child { margin-block-end: 0; }
 .thoughts-shell .post-body h2,
 .thoughts-shell .post-body h3 {
   margin-block-start: var(--space-3);
   color: var(--color-text-primary);
 }
-.thoughts-shell .post-body * + * { margin-block-start: var(--space-2); }
+.thoughts-shell .post-body * + * { margin-block-start: var(--space-3); }
 .thoughts-shell .post-body blockquote {
   position: relative;
   margin-block: var(--space-5);
@@ -1602,7 +1607,8 @@
 .thoughts-shell .post-body a {
   color: var(--color-accent-gold);
   text-decoration: underline;
-  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 0.5rem;
 }
 .thoughts-shell .post-body a:hover,
 .thoughts-shell .post-body a:focus {
@@ -1614,4 +1620,5 @@
   display: inline;
   inset: unset;
   color: var(--color-accent-info) !important;
+  text-decoration: none;
 }
