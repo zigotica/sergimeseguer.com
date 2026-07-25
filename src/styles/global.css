@@ -1536,9 +1536,11 @@
 }
 .thoughts-entry-title strong {
   font-weight: 700;
+  color: var(--color-accent-primary);
 }
 .thought-entry-title strong {
   font-weight: 700;
+  color: var(--color-accent-primary);
 }
 .thoughts-entry-description {
   font: var(--typography-body-3);
@@ -1579,6 +1581,11 @@
   color: var(--color-text-primary);
 }
 .thoughts-shell .post-body * + * { margin-block-start: var(--space-3); }
+.thoughts-shell .post-body h2 {
+  margin-block-start: var(--space-4);
+  font: var(--typography-display-2);
+  color: var(--color-accent-gold);
+}
 .thoughts-shell .post-body blockquote {
   position: relative;
   margin-block: var(--space-5);
@@ -1598,7 +1605,7 @@
 .thoughts-shell .post-body ol { padding-inline-start: var(--space-3); list-style: revert; }
 .thoughts-shell .post-body li + li { margin-block-start: var(--space-1); }
 .thoughts-shell .post-body em {
-  font-style: italic;
+  color: var(--color-accent-info);
 }
 .thoughts-shell .post-body strong {
   color: var(--color-accent-primary);
@@ -1621,4 +1628,26 @@
   inset: unset;
   color: var(--color-accent-info) !important;
   text-decoration: none;
+}
+
+.thoughts-shell .post-body p > code {
+  background-color: var(--base-gold-op-15);
+  word-break: keep-all;
+}
+
+.thoughts-shell .post-body .code-block {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--color-text-muted) 25%, transparent);
+}
+.thoughts-shell .post-body .code-block-title {
+  margin: 0;
+  padding: 0.45rem 0.75rem;
+  font: var(--typography-label-1);
+  color: var(--color-accent-gold);
+  background: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
+}
+.thoughts-shell .post-body pre.shiki {
+  overflow-x: auto;
+  padding: 1rem;
+  font: var(--typography-body-2);
 }

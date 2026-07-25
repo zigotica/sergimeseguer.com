@@ -5,6 +5,7 @@ import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
+import { codeToHast } from 'shiki';
 import { parse as parseYaml } from 'yaml';
 
 export interface ThoughtPost {
@@ -32,6 +33,8 @@ const ALLOWED_NODES = new Set([
   'listItem',
   'link',
   'blockquote',
+  'code',
+  'inlineCode',
 ]);
 
 let postsPromise: Promise<ThoughtPost[]> | undefined;
@@ -130,9 +133,6 @@ function sanitizeNode(node: any): any {
       ? node
       : { type: 'text', value: node.value };
   }
-  if (node.type === 'code' || node.type === 'inlineCode') {
-    return { type: 'text', value: node.value };
-  }
   if (node.type === 'image' || node.type === 'imageReference') {
     return { type: 'text', value: node.alt ?? '' };
   }
@@ -158,6 +158,75 @@ async function renderInlineMarkdown(sourcePath: string, value: string): Promise<
   return html.replace(/^<p>([\s\S]*)<\/p>\n?$/, '$1');
 }
 
+function preserveCodeMeta() {
+  return (tree: any): void => {
+    function visit(node: any): void {
+      if (node.tagName === 'code' && typeof node.data?.meta === 'string') {
+        node.properties = {...node.properties, dataCodeMeta: node.data.meta};
+      }
+      node.children?.forEach(visit);
+    }
+    visit(tree);
+  };
+}
+
+function codeLanguage(properties: Record<string, unknown> | undefined): string {
+  const classes = properties?.className;
+  const values = Array.isArray(classes) ? classes : [classes];
+  const language = values.find((value) => typeof value === 'string' && value.startsWith('language-'));
+  return typeof language === 'string' ? language.slice('language-'.length) : 'text';
+}
+
+function codeTitle(meta: unknown): string | undefined {
+  if (typeof meta !== 'string') return undefined;
+  const match = /(?:^|\s)title=(?:"([^"]*)"|'([^']*)'|(\S+))/.exec(meta);
+  return match?.[1] ?? match?.[2] ?? match?.[3];
+}
+
+function highlightCodeBlocks() {
+  return async (tree: any): Promise<void> => {
+    async function visit(node: any): Promise<void> {
+      if (!node.children) return;
+      for (let index = 0; index < node.children.length; index++) {
+        const child = node.children[index];
+        const code = child.tagName === 'pre' && child.children?.find((item: any) => item.tagName === 'code');
+        if (code) {
+          try {
+            const highlighted = await codeToHast(textContent(code), {
+              lang: codeLanguage(code.properties),
+              theme: 'github-dark',
+            });
+            const title = codeTitle(code.properties?.dataCodeMeta);
+            const replacement = title
+              ? [{
+                  type: 'element',
+                  tagName: 'div',
+                  properties: {className: ['code-block']},
+                  children: [
+                    {
+                      type: 'element',
+                      tagName: 'div',
+                      properties: {className: ['code-block-title']},
+                      children: [{type: 'text', value: title}],
+                    },
+                    ...highlighted.children,
+                  ],
+                }]
+              : highlighted.children;
+            node.children.splice(index, 1, ...replacement);
+            index += replacement.length - 1;
+          } catch {
+            // Unknown language: preserve safe, unhighlighted code block.
+          }
+          continue;
+        }
+        await visit(child);
+      }
+    }
+    await visit(tree);
+  };
+}
+
 function sanitizeHtmlTree(node: any): any {
   if (node.type === 'root') {
     return { ...node, children: node.children.flatMap(sanitizeHtmlTree) };
@@ -174,8 +243,9 @@ function sanitizeHtmlTree(node: any): any {
     if (node.properties?.className) properties.className = node.properties.className;
     if (node.properties?.dataCursorTarget !== undefined) properties.dataCursorTarget = '';
   }
-  if (node.tagName === 'code' && node.properties?.className) {
-    properties.className = node.properties.className;
+  if (node.tagName === 'code') {
+    if (node.properties?.className) properties.className = node.properties.className;
+    if (node.properties?.dataCodeMeta) properties.dataCodeMeta = node.properties.dataCodeMeta;
   }
   return { ...node, children, properties };
 }
@@ -185,7 +255,11 @@ async function renderMarkdown(sourcePath: string, body: string): Promise<string>
     const processor = unified()
       .use(remarkParse)
       .use(remarkRehype, { allowDangerousHtml: true })
+      // rehype-raw drops HAST `data`; retain fenced-code metadata as a property.
+      .use(preserveCodeMeta)
       .use(rehypeRaw)
+      .use(() => (tree) => sanitizeHtmlTree(tree))
+      .use(highlightCodeBlocks)
       .use(() => (tree) => sanitizeHtmlTree(tree))
       .use(rehypeStringify);
     const tree = processor.parse(body);

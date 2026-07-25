@@ -17,5 +17,8 @@
     "remark-rehype": "^11.1.2",
     "unified": "^11.0.5",
     "yaml": "^2.9.0"
+  },
+  "dependencies": {
+    "shiki": "^4.3.1"
   }
 }
