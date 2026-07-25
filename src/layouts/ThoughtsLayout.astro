@@ -34,15 +34,15 @@ const siteName = 'Sergi Meseguer';
   <body>
     <Cursor />
     <!-- generated: thoughts-blog-markdown -->
+    <Header
+      ariaLabel="Thoughts navigation"
+      logoText="SERGI MESEGUER"
+      logoHref="/"
+      showMark={true}
+      links={[{ label: 'Thoughts', href: '/thoughts/' }]}
+    />
     <main>
       <div class="thoughts-shell">
-        <Header
-          ariaLabel="Thoughts navigation"
-          logoText="SERGI MESEGUER"
-          logoHref="/"
-          showMark={true}
-          links={[{ label: 'Thoughts', href: '/thoughts/' }]}
-        />
         <slot />
       </div>
     </main>
