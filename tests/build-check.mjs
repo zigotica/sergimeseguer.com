@@ -24,6 +24,8 @@ slug: fixture-post
 Raw <em>HTML</em>, **strong**, *emphasis*, and [link](https://example.com).
 
 <a class="fixture-link" data-cursor-target href="#contact" style="color: red">Raw link</a>, <code class="language-js">raw code</code><br>next line.
+
+[Markdown link](https://example.com)</a> after orphan closing tag.
 `;
 
 function build(env = {}) {
@@ -93,6 +95,7 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     assert.match(postHtml, /Raw &#x3C;em>HTML&#x3C;\/em>/);
     assert.match(postHtml, /<a href="#contact" class="fixture-link" data-cursor-target(?:="")?>Raw link<\/a>/);
     assert.match(postHtml, /<code class="language-js">raw code<\/code><br>next line\./);
+    assert.match(postHtml, /<a href="https:\/\/example\.com">Markdown link<\/a>&#x3C;\/a> after orphan closing tag\./);
     assert.doesNotMatch(postHtml, /fixture-link[^>]*style=/);
     assert.doesNotMatch(postHtml, /astro-island/);
     assert.match(thoughtsIndex, /Fixture (?:&lt;|&#x3C;)post>/);

@@ -126,12 +126,21 @@ function safeLink(url: string): string | undefined {
   return trimmed;
 }
 
-function sanitizeNode(node: any): any {
+function sanitizeNode(node: any, openRawTags: string[] = []): any {
   if (node.type === 'html') {
-    const tag = node.value.match(/^<\/?([a-z][\w-]*)\b/i)?.[1]?.toLowerCase();
-    return tag && ALLOWED_HTML_TAGS.includes(tag)
-      ? node
-      : { type: 'text', value: node.value };
+    const match = node.value.match(/^<(\/)?([a-z][\w-]*)\b/i);
+    const closing = match?.[1] === '/';
+    const tag = match?.[2]?.toLowerCase();
+    if (!tag || !ALLOWED_HTML_TAGS.includes(tag)) return { type: 'text', value: node.value };
+
+    if (closing) {
+      if (openRawTags.at(-1) !== tag) return { type: 'text', value: node.value };
+      openRawTags.pop();
+      return node;
+    }
+
+    if (tag !== 'br' && !/\/>\s*$/.test(node.value)) openRawTags.push(tag);
+    return node;
   }
   if (node.type === 'image' || node.type === 'imageReference') {
     return { type: 'text', value: node.alt ?? '' };
@@ -141,10 +150,12 @@ function sanitizeNode(node: any): any {
   if (node.type === 'link') {
     const url = safeLink(node.url ?? '');
     if (!url) return { type: 'text', value: textContent(node) };
-    return { ...node, url, children: (node.children ?? []).map(sanitizeNode) };
+    return { ...node, url, children: (node.children ?? []).map((child: any) => sanitizeNode(child, openRawTags)) };
   }
   if (!ALLOWED_NODES.has(node.type)) return { type: 'text', value: textContent(node) };
-  if (node.children) return { ...node, children: node.children.map(sanitizeNode) };
+  if (node.children) {
+    return { ...node, children: node.children.map((child: any) => sanitizeNode(child, openRawTags)) };
+  }
   return node;
 }
 
