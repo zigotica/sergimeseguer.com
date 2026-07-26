@@ -1,6 +1,6 @@
 ---
 title: I don't want AI agents to *start coding*. I want them to **understand work first**.
-date: 2026-07-25
+date: 2026-07-23
 description: "pi-subagents is a workflow I built around a simple belief: the interface with AI is a spec, not a prompt. It makes agents understand, plan, build, and validate work — while *keeping judgment where it belongs: with you*."
 slug: pi-subagents-extension
 ---
@@ -33,7 +33,7 @@ That changes interaction.
 
 A persistent planner feels more like a _design conversation_: someone has read the material, can explain trade-offs, and does not forget an answer from the previous minute. It is not overhead before “real” work.
 
-> **Planning** is the place where expensive mistakes are *cheapest* to prevent.
+> **Planning** is the place where expensive mistakes are _cheapest_ to prevent.
 
 ## Build needs proportion, not theatre
 
@@ -53,7 +53,7 @@ pi-subagents supports per-agent configuration, with fallback to the parent sessi
 
 That is the same principle as the rest of the tool: enough structure to make good practice easy, and enough transparency to keep judgment with the person using it. I am not trying to build an autonomous software factory.
 
-> I am **building tools** that let me work with more clarity, *more intent*, and better feedback loops.
+> I am **building tools** that let me work with more clarity, _more intent_, and better feedback loops.
 
 ## Source code
 

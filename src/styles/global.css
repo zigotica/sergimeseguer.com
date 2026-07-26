@@ -1544,7 +1544,15 @@
   font: var(--typography-body-3);
   color: var(--color-text-muted);
 }
-
+.thoughts-entry-description a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 0.5rem;
+}
+.thoughts-entry-description a:hover,
+.thoughts-entry-description a:focus {
+  color: var(--color-accent-primary);
+}
 .thoughts-entry-description em {
   color: var(--color-accent-info);
 }
