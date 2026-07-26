@@ -1,7 +1,11 @@
 const INITIALIZED_KEY = '__siteCursorInitialized';
 
+type CursorState = {
+  destroy: () => void;
+};
+
 type CursorDocument = Document & {
-  [INITIALIZED_KEY]?: boolean;
+  [INITIALIZED_KEY]?: CursorState;
 };
 
 function lerp(a: number, b: number, t: number): number {
@@ -70,14 +74,17 @@ function getInteractiveElement(target: EventTarget | null): Element | null {
     : null;
 }
 
+export function destroyCursor(): void {
+  const documentWithState = document as CursorDocument;
+  documentWithState[INITIALIZED_KEY]?.destroy();
+}
+
 export function initCursor(): void {
   const documentWithState = document as CursorDocument;
   if (documentWithState[INITIALIZED_KEY]) return;
 
   const cursor = document.querySelector<HTMLElement>('[data-cursor]');
   if (!cursor) return;
-
-  documentWithState[INITIALIZED_KEY] = true;
 
   const ring = cursor.querySelector<HTMLElement>('[data-cursor-ring]');
   const poly = cursor.querySelector<SVGPolygonElement>('[data-cursor-polygon]');
@@ -105,11 +112,13 @@ export function initCursor(): void {
   }
 
   const ffCursor = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'6\' height=\'6\' viewBox=\'0 0 6 6\'%3E%3Crect width=\'6\' height=\'6\' fill=\'%23c9826b\'/%3E%3C/svg%3E") 3 3, auto';
-  document.body.style.cursor = ffCursor;
-
   const interactiveCursor = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 6 6\'%3E%3Crect width=\'10\' height=\'10\' fill=\'%23c9826b\'/%3E%3C/svg%3E") 3 3, auto';
-  document.querySelectorAll('a, button, [role="button"]').forEach((element) => {
-    (element as HTMLElement).style.cursor = interactiveCursor;
+  const heroTarget = document.querySelector<HTMLElement>('[data-cursor-target]');
+  const interactiveElements = [...document.querySelectorAll<HTMLElement>('a, button, [role="button"]')];
+
+  document.body.style.cursor = ffCursor;
+  interactiveElements.forEach((element) => {
+    element.style.cursor = interactiveCursor;
   });
 
   let mx = 0;
@@ -117,17 +126,33 @@ export function initCursor(): void {
   let rx = 0;
   let ry = 0;
   let morphT = 0;
+  let animationFrame: number | undefined;
 
   const MAX_PTS = 9;
   let fromShape = resample(randomShape(8), MAX_PTS);
   let toShape = resample(randomShape(5), MAX_PTS);
 
-  document.addEventListener('mousemove', (event) => {
+  const onMousemove = (event: MouseEvent): void => {
     mx = event.clientX;
     my = event.clientY;
     cursorHairlineX.style.setProperty('--cursor-y', `${my}px`);
     cursorHairlineY.style.setProperty('--cursor-x', `${mx}px`);
-  });
+  };
+
+  const onPointerover = (event: PointerEvent): void => {
+    const current = getInteractiveElement(event.target);
+    const previous = getInteractiveElement(event.relatedTarget);
+    if (current && current !== previous) cursorRing.classList.add('is-hovering');
+  };
+
+  const onPointerout = (event: PointerEvent): void => {
+    const current = getInteractiveElement(event.target);
+    const next = getInteractiveElement(event.relatedTarget);
+    if (current && current !== next) cursorRing.classList.remove('is-hovering');
+  };
+
+  const onHeroEnter = (): void => document.body.classList.add('cursor-targeting');
+  const onHeroLeave = (): void => document.body.classList.remove('cursor-targeting');
 
   function animRing(): void {
     rx += (mx - rx) * 0.12;
@@ -149,30 +174,29 @@ export function initCursor(): void {
         `${lerp(point[0], toShape[index][0], et).toFixed(2)},${lerp(point[1], toShape[index][1], et).toFixed(2)}`,
     );
     cursorPoly.setAttribute('points', points.join(' '));
-    requestAnimationFrame(animRing);
+    animationFrame = requestAnimationFrame(animRing);
   }
 
-  document.addEventListener('pointerover', (event) => {
-    const current = getInteractiveElement(event.target);
-    const previous = getInteractiveElement(event.relatedTarget);
-    if (current && current !== previous) cursorRing.classList.add('is-hovering');
-  });
-
-  document.addEventListener('pointerout', (event) => {
-    const current = getInteractiveElement(event.target);
-    const next = getInteractiveElement(event.relatedTarget);
-    if (current && current !== next) cursorRing.classList.remove('is-hovering');
-  });
-
-  const heroTarget = document.querySelector<HTMLElement>('[data-cursor-target]');
-  if (heroTarget) {
-    heroTarget.addEventListener('mouseenter', () => {
-      document.body.classList.add('cursor-targeting');
+  const destroy = (): void => {
+    if (animationFrame !== undefined) cancelAnimationFrame(animationFrame);
+    document.removeEventListener('mousemove', onMousemove);
+    document.removeEventListener('pointerover', onPointerover);
+    document.removeEventListener('pointerout', onPointerout);
+    heroTarget?.removeEventListener('mouseenter', onHeroEnter);
+    heroTarget?.removeEventListener('mouseleave', onHeroLeave);
+    document.body.style.cursor = '';
+    interactiveElements.forEach((element) => {
+      element.style.cursor = '';
     });
-    heroTarget.addEventListener('mouseleave', () => {
-      document.body.classList.remove('cursor-targeting');
-    });
-  }
+    document.body.classList.remove('cursor-targeting');
+    delete documentWithState[INITIALIZED_KEY];
+  };
 
+  documentWithState[INITIALIZED_KEY] = { destroy };
+  document.addEventListener('mousemove', onMousemove);
+  document.addEventListener('pointerover', onPointerover);
+  document.addEventListener('pointerout', onPointerout);
+  heroTarget?.addEventListener('mouseenter', onHeroEnter);
+  heroTarget?.addEventListener('mouseleave', onHeroLeave);
   animRing();
 }

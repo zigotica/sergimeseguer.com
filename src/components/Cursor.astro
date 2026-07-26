@@ -9,7 +9,9 @@
 </div>
 
 <script>
-  import { initCursor } from '../scripts/cursor';
+  import { destroyCursor, initCursor } from '../scripts/cursor';
 
   initCursor();
+  document.addEventListener('astro:before-swap', destroyCursor);
+  document.addEventListener('astro:after-swap', initCursor);
 </script>
