@@ -7,9 +7,9 @@ slug: pi-subagents-extension
 
 Most AI coding workflows optimise for the first edit.
 
-Give an agent a task. It reads a few files, picks a plausible direction, and starts changing code. Fast feels productive — until it is not. A small request quietly contains product decisions, architectural constraints, edge cases, and assumptions nobody has made explicit. An agent can produce convincing code while solving the wrong problem perfectly.
+Give an agent a task. It reads a few files, picks a plausible direction, and starts changing code. Fast feels productive — until it is not. A small request quietly contains product decisions, architectural constraints, edge cases, and assumptions nobody has made explicit.
 
-That is not a failure of the model. It is a failure of the interface.
+> An agent can produce convincing code while *solving the wrong problem*. That is not a failure of the model. It is **a failure of the interface**.
 
 My view is that **the interface with AI is a spec, not a prompt**. Judgment about what matters, how a system should be structured, and when a spec is wrong stays mine. AI makes execution faster; it does not remove the need for intent.
 
