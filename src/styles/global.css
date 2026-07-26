@@ -1037,13 +1037,13 @@
     }
 
     .lab-card:nth-child(4n + 2) {
-      background: var(--color-panel-2);
-      border-inline-start-color: var(--color-tile-5);
+      background: var(--color-panel-3);
+      border-inline-start-color: var(--color-tile-3);
     }
 
     .lab-card:nth-child(4n + 3) {
-      background: var(--color-panel-3);
-      border-inline-start-color: var(--color-tile-3);
+      background: var(--color-panel-2);
+      border-inline-start-color: var(--color-tile-5);
     }
 
     .lab-card:nth-child(4n) {
@@ -1512,15 +1512,13 @@
   margin-block-end: var(--space-3);
 }
 .thoughts-entry-title a {
+  display: inline-block;
+  transform-origin: left center;
   color: var(--color-text-primary);
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-decoration-thickness: 1px !important;
-  text-underline-offset: 0.5rem;
-  transition: text-decoration-color 0.25s linear;
+  transition: transform 0.25s linear;
 }
 .thoughts-entry-title a:hover {
-  text-decoration-color: currentColor;
+  transform: scale(1.01);
 }
 .thought-entry-title {
   font: var(--typography-display-4);
