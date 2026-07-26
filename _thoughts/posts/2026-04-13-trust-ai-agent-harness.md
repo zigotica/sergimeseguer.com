@@ -9,7 +9,9 @@ slug: trust-ai-agent-harness
 
 Then I made the connection to [OpenClaw](https://openclaw.ai/) — a tool built on top of Pi by a different author. OpenClaw is powerful by design, but that power needs strong operational boundaries. A powerful tool plus a distracted afternoon is all it takes. Deleted directories, overwritten configs, gone. I didn't want to be that story.
 
-**Permission fatigue is the real problem.** The usual approach is to ask: allow this action? Allow that one? It sounds safe, but in practice you end up accepting everything by reflex. It stops being a real decision and becomes a ritual. That's not protection — it's the appearance of it.
+> **Permission fatigue** is the real problem.
+
+The usual approach is to ask: allow this action? Allow that one? It sounds safe, but in practice you end up accepting everything by reflex. It stops being a real decision and becomes a ritual. That's not protection — it's the appearance of it.
 
 I wanted something structural. Not prompts to click through, but actual walls.
 

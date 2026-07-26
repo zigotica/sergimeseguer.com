@@ -31,7 +31,9 @@ Then the **planner subagent** uses a more capable model, since it is the core of
 
 That changes interaction.
 
-A persistent planner feels more like a _design conversation_: someone has read the material, can explain trade-offs, and does not forget an answer from the previous minute. It is not overhead before “real” work. **Planning is the place where expensive mistakes are cheapest to prevent**.
+A persistent planner feels more like a _design conversation_: someone has read the material, can explain trade-offs, and does not forget an answer from the previous minute. It is not overhead before “real” work.
+
+> **Planning** is the place where expensive mistakes are *cheapest* to prevent.
 
 ## Build needs proportion, not theatre
 
@@ -49,9 +51,9 @@ Different stages benefit from different model and thinking settings. Most subage
 
 pi-subagents supports per-agent configuration, with fallback to the parent session settings. Agents and prompts remain Markdown files in normal Pi project or global directories. No locked-in policy, hidden state, or configuration buried in code.
 
-That is the same principle as the rest of the tool: enough structure to make good practice easy, and enough transparency to keep judgment with the person using it.
+That is the same principle as the rest of the tool: enough structure to make good practice easy, and enough transparency to keep judgment with the person using it. I am not trying to build an autonomous software factory.
 
-I am not trying to build an autonomous software factory. **I am building tools that let me work with more clarity, more intent, and better feedback loops**.
+> I am **building tools** that let me work with more clarity, *more intent*, and better feedback loops.
 
 ## Source code
 
