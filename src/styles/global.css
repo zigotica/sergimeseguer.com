@@ -1649,3 +1649,8 @@
   padding: 1rem;
   font: var(--typography-body-2);
 }
+
+.thoughts-shell .post-body pre.shiki code .line {
+  display: block;
+  margin-block-start: 0;
+}

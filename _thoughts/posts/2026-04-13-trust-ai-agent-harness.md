@@ -1,7 +1,7 @@
 ---
 title: What it took to actually **trust** an *AI agent harness*.
 date: 2026-04-13
-description: I use three AI coding agents across different contexts. I've never fully trusted any of them with my machine. So I built a container sandbox that gives each one exactly what it needs — and nothing else.
+description: I run three AI coding agents. I didn’t trust any of them with my machine, so I built a container sandbox that gives each one only the access it needs. This is what changed.
 slug: trust-ai-agent-harness
 ---
 
@@ -34,6 +34,27 @@ Opencode has an external [sandbox via Daytona](https://github.com/daytonaio/dayt
 3. No sandbox-created dotfiles or agent state leak into host project directory. Intended project changes persist; sandbox pollution does not.
 4. If Pi's bwrap sandbox can work inside Docker, keep it. It adds another constraint around sandboxed shell commands.
 
+## Make the safe path the default
+
+A sandbox only helps when I remember to use it. Typing `agent-sandbox pi` every time creates a small gap between intent and habit — exactly where shortcuts happen.
+
+So I alias the normal commands:
+
+```sh
+alias pi='agent-sandbox pi'
+alias opencode='agent-sandbox opencode'
+```
+
+Now `pi` means the sandboxed version. The unsandboxed command is still deliberate and available when I need it:
+
+```sh
+\pi
+# or
+command pi
+```
+
+The aliases are not a security boundary. They are a guardrail: the safer route becomes the path of least resistance.
+
 ## The bwrap problem
 
 Most of the pain was here. My Pi setup uses Bubblewrap (`bwrap`) through its sandbox extension. Running bwrap inside a Docker container requires creating namespaces and mounting filesystems — operations Docker restricts by default.
@@ -58,4 +79,4 @@ The sandbox is extensible. Pi and opencode are built in. Adding a new agent is t
 
 ## Source code
 
-agent-sandbox is ooen source, [available on GitHub](https://github.com/zigotica/agent-sandbox). Installation options include Homebrew, npm, curl, and git clone.
+agent-sandbox is open source, [available on GitHub](https://github.com/zigotica/agent-sandbox). Installation options include Homebrew, npm, curl, and git clone.
