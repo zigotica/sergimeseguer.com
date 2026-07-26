@@ -20,9 +20,9 @@ function isValidIsoDate(value: string): boolean {
   );
 }
 
-export function homepageLastmod(): string {
+function gitLastmod(...paths: string[]): string {
   try {
-    const date = execFileSync('git', ['log', '-1', '--format=%cs', '--', 'src/pages/index.astro'], {
+    const date = execFileSync('git', ['log', '-1', '--format=%cs', '--', ...paths], {
       cwd: process.cwd(),
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
@@ -33,11 +33,19 @@ export function homepageLastmod(): string {
   }
 }
 
+export function homepageLastmod(): string {
+  return gitLastmod('src/pages/index.astro');
+}
+
+export function thoughtsIndexLastmod(): string {
+  return gitLastmod('src/pages/thoughts/index.astro', '_thoughts/posts');
+}
+
 export const GET: APIRoute = async () => {
   const posts = await getPosts();
   const urls = [
     { loc: 'https://sergimeseguer.com/', lastmod: homepageLastmod() },
-    { loc: 'https://sergimeseguer.com/thoughts/' },
+    { loc: 'https://sergimeseguer.com/thoughts/', lastmod: thoughtsIndexLastmod() },
     ...posts.map((post) => ({
       loc: `https://sergimeseguer.com/thoughts/${post.slug}/`,
       lastmod: post.date,

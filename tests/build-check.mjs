@@ -109,6 +109,7 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     assert.match(thoughtsIndex, /data-cursor-polygon/);
     assert.match(rss, /fixture-post/);
     assert.match(sitemap, /thoughts\/fixture-post\//);
+    assert.match(sitemap, /<loc>https:\/\/sergimeseguer\.com\/thoughts\/<\/loc>\n    <lastmod>2025-01-02<\/lastmod>/);
     assert.match(sitemap, /<lastmod>2025-01-02<\/lastmod>/);
 
     for (const sourceOnly of ['_thoughts', 'scripts', 'tests', 'node_modules']) {
