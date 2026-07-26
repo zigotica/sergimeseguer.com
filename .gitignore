@@ -1,1 +1,7 @@
 .DS_Store
+.ai/
+.astro/
+.astro-build/
+/thoughts/
+/sitemap.xml
+node_modules/

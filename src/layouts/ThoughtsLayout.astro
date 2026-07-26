@@ -1,0 +1,56 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Contact from '../components/Contact.astro';
+import Cursor from '../components/Cursor.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical: string;
+  ogType?: 'website' | 'article';
+}
+
+const { title, description, canonical, ogType = 'website' } = Astro.props;
+const siteName = 'Sergi Meseguer';
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="index, follow" />
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src 'self';" />
+    <title>{title} | {siteName}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={siteName} />
+    <link rel="alternate" type="application/rss+xml" title="Sergi Meseguer Thoughts RSS" href="/thoughts/rss.xml" />
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  </head>
+  <body>
+    <Cursor />
+    <!-- generated: thoughts-blog-markdown -->
+    <Header
+      ariaLabel="Thoughts navigation"
+      logoText="SERGI MESEGUER"
+      logoHref="/"
+      showMark={true}
+      links={[{ label: 'Thoughts', href: '/thoughts/' }, { label: 'Contact', href: '#contact' }]}
+    />
+    <main>
+      <div class="thoughts-shell">
+        <slot />
+      </div>
+    </main>
+    <Contact />
+    <Footer />
+  </body>
+</html>
+
