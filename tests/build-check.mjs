@@ -45,9 +45,13 @@ function build(env = {}) {
 async function fakeGit(date) {
   const directory = await mkdtemp(join(tmpdir(), 'thoughts-git-'));
   const executable = join(directory, 'git');
-  await writeFile(executable, `#!/bin/sh\nprintf '%s\\n' '${date}'\n`);
+  await writeFile(executable, '#!/bin/sh\nprintf \'%s\\n\' "$FAKE_GIT_DATE"\n');
   await chmod(executable, 0o755);
-  return { directory, path: `${directory}:${process.env.PATH ?? ''}` };
+  return {
+    directory,
+    path: `${directory}:${process.env.PATH ?? ''}`,
+    env: { FAKE_GIT_DATE: date },
+  };
 }
 
 async function preserveOutput() {
@@ -68,7 +72,7 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
   try {
     await cp(sourceDirectory, join(sourceBackup, '_thoughts'), { recursive: true });
     await writeFile(fixture, validPost);
-    assert.equal(build({ PATH: git.path }).status, 0);
+    assert.equal(build({ PATH: git.path, ...git.env }).status, 0);
 
     const homepage = await readFile(join(outputDirectory, 'index.html'), 'utf8');
     const postHtml = await readFile(join(outputDirectory, 'thoughts', 'fixture-post', 'index.html'), 'utf8');
@@ -112,7 +116,7 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     }
 
     await rm(fixture);
-    assert.equal(build({ PATH: git.path }).status, 0);
+    assert.equal(build({ PATH: git.path, ...git.env }).status, 0);
     assert.equal(existsSync(join(outputDirectory, 'thoughts', 'fixture-post')), false);
   } finally {
     await rm(fixture, { force: true });
@@ -130,7 +134,7 @@ test('sitemap uses deterministic fallback for invalid Git metadata', async () =>
   const git = await fakeGit('not-a-date');
   try {
     await cp(sourceDirectory, join(sourceBackup, '_thoughts'), { recursive: true });
-    assert.equal(build({ PATH: git.path }).status, 0);
+    assert.equal(build({ PATH: git.path, ...git.env }).status, 0);
     const sitemap = await readFile(join(outputDirectory, 'sitemap.xml'), 'utf8');
     assert.match(sitemap, /<lastmod>2026-06-29<\/lastmod>/);
   } finally {
