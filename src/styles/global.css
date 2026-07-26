@@ -1546,7 +1546,7 @@
 }
 
 .thoughts-entry-description em {
-  font-style: italic;
+  color: var(--color-accent-info);
 }
 .thoughts-entry-description strong {
   color: var(--color-accent-primary);

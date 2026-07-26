@@ -1,7 +1,7 @@
 ---
 title: I don't want AI agents to *start coding*. I want them to **understand work first**.
 date: 2026-07-25
-description: "pi-subagents is a workflow I built around a simple belief: the interface with AI is a spec, not a prompt. It makes agents understand, plan, build, and validate work — while keeping judgment where it belongs: with you."
+description: "pi-subagents is a workflow I built around a simple belief: the interface with AI is a spec, not a prompt. It makes agents understand, plan, build, and validate work — while *keeping judgment where it belongs: with you*."
 slug: pi-subagents-extension
 ---
 
