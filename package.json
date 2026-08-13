@@ -6,6 +6,7 @@
     "node": "26.1.0"
   },
   "scripts": {
+    "dev": "astro dev",
     "build": "astro build",
     "test": "node --test tests/build-check.mjs"
   },

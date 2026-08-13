@@ -979,7 +979,8 @@ section {
 }
 
 .project-outcome svg {
-  display: inline;
+  display: inline-block;
+  margin-inline-end: 0.5em;
   height: 1.6rem;
   alignment-baseline: middle;
 }
