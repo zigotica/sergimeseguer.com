@@ -598,7 +598,7 @@ import '../styles/global.css';
   <script>
     // ── Voronoi mosaic (SVG, throttled) ──
     const vSvg = document.getElementById("voronoiSvg");
-    const tiles = ["color-tile-1", "color-tile-2", "color-tile-3", "color-tile-4", "color-tile-5", "color-tile-6"];
+    const tiles = ["color-voronoi-1", "color-voronoi-2", "color-voronoi-3", "color-voronoi-4", "color-voronoi-5", "color-voronoi-6"];
     const vPalette = tiles.map((t) =>
       getComputedStyle(document.documentElement).getPropertyValue(`--${t}`).trim(),
     );

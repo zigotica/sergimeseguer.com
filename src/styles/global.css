@@ -48,6 +48,13 @@ menu {
   --base-sky: #8cafd2;
   --base-mauve: #c895bf;
 
+  --base-warm-1: #a39783;
+  --base-warm-2: #b0a593;
+  --base-warm-3: #bdb3a2;
+  --base-warm-4: #cac1b2;
+  --base-warm-5: #d6cfc1;
+  --base-warm-6: #e3ddd1;
+
   --base-gray-95: #0e0d0b;
   --base-gray-90: #1e1e1e;
   --base-gray-85: #262626;
@@ -165,6 +172,14 @@ menu {
   --color-tile-4: var(--base-sage);
   --color-tile-5: var(--base-sky);
   --color-tile-6: var(--base-mauve);
+
+  /* ── Color: Voronoi ── */
+  --color-voronoi-1: var(--base-warm-1);
+  --color-voronoi-2: var(--base-warm-2);
+  --color-voronoi-3: var(--base-warm-3);
+  --color-voronoi-4: var(--base-warm-4);
+  --color-voronoi-5: var(--base-warm-5);
+  --color-voronoi-6: var(--base-warm-6);
 
   /* ── Color: Panels ── */
   --color-panel-1: var(--base-gray-90);
