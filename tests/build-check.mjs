@@ -19,7 +19,7 @@ const validPost = `---
 title: "Fixture *post*"
 date: ${yesterday}
 description: "Safe & **short** description"
-og: https://example.com/image.png
+og: figures/fixture-og.png
 slug: fixture-post
 ---
 
@@ -100,8 +100,9 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     assert.ok((await readFile(join(outputDirectory, 'sergi-meseguer.png'))).length > 0);
     assert.ok((await readFile(join(outputDirectory, 'fonts', 'playfair-roman.woff2'))).length > 0);
     assert.match(postHtml, /canonical.*thoughts\/fixture-post\//);
-    assert.match(postHtml, /<meta property="og:image" content="https:\/\/example\.com\/image\.png">/);
+    assert.match(postHtml, /<meta property="og:image" content="https:\/\/sergimeseguer\.com\/figures\/fixture-og\.png">/);
     assert.match(postHtml, /<meta property="og:image:type" content="image\/png">/);
+    assert.match(postHtml, /<meta name="twitter:image" content="https:\/\/sergimeseguer\.com\/figures\/fixture-og\.png">/);
     assert.match(postHtml, /id="contact"/);
     assert.match(postHtml, /href="#contact"/);
     assert.match(postHtml, /data-cursor(?:="true")?(?:\s|>)/);

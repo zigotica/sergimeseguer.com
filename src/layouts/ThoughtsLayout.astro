@@ -16,6 +16,7 @@ interface Props {
 const { title, description, canonical, og, ogType = 'website' } = Astro.props;
 const siteName = 'Sergi Meseguer';
 const defaultOgImage = '/sergi-meseguer.png';
+const ogImage = new URL(og ?? defaultOgImage, Astro.site ?? new URL('/', canonical)).href;
 ---
 <!doctype html>
 <html lang="en">
@@ -33,10 +34,10 @@ const defaultOgImage = '/sergi-meseguer.png';
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={siteName} />
-    <meta property="og:image" content={og ?? defaultOgImage} />
+    <meta property="og:image" content={ogImage} />
     {og && <meta property="og:image:type" content="image/png" />}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content={og ?? defaultOgImage} />
+    <meta name="twitter:image" content={ogImage} />
     <link rel="alternate" type="application/rss+xml" title="Sergi Meseguer Thoughts RSS" href="/thoughts/rss.xml" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   </head>
