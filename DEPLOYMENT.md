@@ -80,7 +80,7 @@ Use temporary URL `https://<project>.pages.dev`; replace `<slug>` with represent
 - `https://<project>.pages.dev/sitemap.xml`
 - `https://<project>.pages.dev/fonts/...` (check representative emitted font, such as `fonts/playfair-roman.woff2`)
 - `https://<project>.pages.dev/favicon.ico`
-- `https://<project>.pages.dev/sergi-meseguer.jpg`
+- `https://<project>.pages.dev/sergi-meseguer.png`
 
 For every page, confirm successful response, expected content, no missing files, no unexpected redirects, and no browser console or network errors. Confirm:
 
@@ -95,7 +95,7 @@ Do not attach custom domain until this validation passes. After attachment, veri
 
 Posts remain Markdown files in `_thoughts/posts/*.md`. Run `npm test` before every push. A tested push to GitHub `master` causes Cloudflare Pages Git integration to build repository source with `npm run build` and publish `.astro-build` automatically. Generated pages, RSS, sitemap, and build output are not committed.
 
-After each production deployment, check `/`, `/thoughts/`, one post route, `/thoughts/rss.xml`, `/sitemap.xml`, fonts, `/favicon.ico`, `/sergi-meseguer.jpg`, canonical URLs, trailing-slash behavior, DNS, HTTPS, and browser console/network results.
+After each production deployment, check `/`, `/thoughts/`, one post route, `/thoughts/rss.xml`, `/sitemap.xml`, fonts, `/favicon.ico`, `/sergi-meseguer.png`, canonical URLs, trailing-slash behavior, DNS, HTTPS, and browser console/network results.
 
 ## Troubleshooting
 

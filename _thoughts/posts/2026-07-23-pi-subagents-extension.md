@@ -3,13 +3,14 @@ title: I don't want AI agents to *start coding*. I want them to **understand wor
 date: 2026-07-23
 description: "pi-subagents is a workflow I built around a simple belief: the interface with AI is a spec, not a prompt. It makes agents understand, plan, build, and validate work — while *keeping judgment where it belongs: with you*."
 slug: pi-subagents-extension
+og: figures/pi-subagents-extension/og.png
 ---
 
 Most AI coding workflows optimise for the first edit.
 
 Give an agent a task. It reads a few files, picks a plausible direction, and starts changing code. Fast feels productive — until it is not. A small request quietly contains product decisions, architectural constraints, edge cases, and assumptions nobody has made explicit.
 
-> An agent can produce convincing code while *solving the wrong problem*. That is not a failure of the model. It is **a failure of the interface**.
+> An agent can produce convincing code while _solving the wrong problem_. That is not a failure of the model. It is **a failure of the interface**.
 
 My view is that **the interface with AI is a spec, not a prompt**. Judgment about what matters, how a system should be structured, and when a spec is wrong stays mine. AI makes execution faster; it does not remove the need for intent.
 
@@ -31,6 +32,12 @@ Then the **planner subagent** uses a more capable model, since it is the core of
 
 That changes interaction.
 
+<Figure
+    srcs="figures/pi-subagents-extension/plan-subagent-portrait.svg,figures/pi-subagents-extension/plan-subagent-landscape.svg"
+    alts="Interaction with plan subagent, starting from a prompt and getting a final spec."
+    caption="Interaction with plan subagent, starting from a prompt and getting a final spec."
+/>
+
 A persistent planner feels more like a _design conversation_: someone has read the material, can explain trade-offs, and does not forget an answer from the previous minute. It is not overhead before “real” work.
 
 > **Planning** is the place where expensive mistakes are _cheapest_ to prevent.
@@ -38,6 +45,12 @@ A persistent planner feels more like a _design conversation_: someone has read t
 ## Build needs proportion, not theatre
 
 `/build <task>` runs a chain of cheaper, focused agents in a _non-interactive mode_. **Builder** implements. **Linter** checks static quality. **Tester** runs the test suite. **Validator** checks the result against the agreed spec. **Auditor** adds a security review where needed.
+
+<Figure
+    srcs="figures/pi-subagents-extension/build-subagent-portrait.svg,figures/pi-subagents-extension/build-subagent-landscape.svg"
+    alts="Build subagent, non-interactive, starting from a spec to the final changed files after revision / audit."
+    caption="Build subagent, non-interactive, starting from a spec to the final changed files after lint, test, revision and audit subagents approval / fixes."
+/>
 
 _Not every task needs the full chain_. A contained change may need the builder only. Security-focused work can use the builder plus the auditor. The point is not maximum ceremony; it is applying enough scrutiny for the change being made.
 

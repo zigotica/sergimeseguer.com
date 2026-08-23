@@ -3,6 +3,7 @@ title: When deployment **becomes boring again**
 date: 2026-08-08
 description: Good infrastructure should match the problem it's solving. This migration was less about hosting and more about choosing the smallest system that could do the job.
 slug: when-deployment-becomes-boring-again
+og: figures/when-deployment-becomes-boring-again/og.png
 ---
 
 One of my favourite properties of a software system is that it eventually becomes **boring**. Not because nobody cares about it, but because it disappears into the background. You stop thinking about deployment, certificates, DNS, or build pipelines and get back to the work the system exists to support.
@@ -59,5 +60,11 @@ This migration reminded me that the same principle applies to infrastructure.
 The best deployment pipeline is not the one with the most features.
 
 It is the one you stop thinking about.
+
+<Figure
+    srcs="figures/when-deployment-becomes-boring-again/over-engineered-system-to-boring-system-portrait.svg,figures/when-deployment-becomes-boring-again/over-engineered-system-to-boring-system-landscape.svg"
+    alts="Same job. Fewer moving parts."
+    caption="Same job. Fewer moving parts."
+/>
 
 > The system is now _small enough_ to understand in one sitting — and **boring enough to leave alone afterward.**

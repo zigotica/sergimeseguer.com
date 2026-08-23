@@ -1,0 +1,46 @@
+---
+import { figureAssetMarkup } from '../lib/figure';
+
+interface Props {
+  srcs: string[];
+  alts?: string[];
+  caption?: string;
+  figcaption?: string;
+  cells?: boolean;
+}
+
+const {
+  srcs,
+  alts = [],
+  caption,
+  figcaption,
+  cells = false,
+} = Astro.props;
+const sources = srcs;
+if (!sources.length) throw new Error('Figure requires at least one image source');
+if (sources.length > 2 && !cells) throw new Error('Figure with more than two sources requires cells');
+const captionText = caption ?? figcaption;
+const showCells = cells;
+const figureClass = showCells ? 'post-figure post-figure-cells' : 'post-figure';
+const imageAlt = (index: number) => alts[index] ?? '';
+const assets = sources.map((source, index) => figureAssetMarkup(source, imageAlt(index)));
+---
+<figure class={figureClass}>
+  {showCells && (
+    <div class="figure-cells-grid" style={`--figure-cell-columns: ${Math.max(2, sources.length)}`}>
+      {assets.map((asset, index) => (
+        <div class="figure-cell" role={imageAlt(index) ? 'img' : undefined} aria-label={imageAlt(index) || undefined} set:html={asset} />
+      ))}
+    </div>
+  )}
+  {!showCells && assets.length === 1 && (
+    <div class="figure-inline" role={imageAlt(0) ? 'img' : undefined} aria-label={imageAlt(0) || undefined} set:html={assets[0]} />
+  )}
+  {!showCells && assets.length === 2 && (
+    <div class="figure-portrait" role={imageAlt(0) ? 'img' : undefined} aria-label={imageAlt(0) || undefined} set:html={assets[0]} />
+  )}
+  {!showCells && assets.length === 2 && (
+    <div class="figure-landscape" role={imageAlt(1) ? 'img' : undefined} aria-label={imageAlt(1) || undefined} set:html={assets[1]} />
+  )}
+  {captionText && <figcaption>{captionText}</figcaption>}
+</figure>

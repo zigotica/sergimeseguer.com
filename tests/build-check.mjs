@@ -10,12 +10,16 @@ const root = process.cwd();
 const sourceDirectory = join(root, '_thoughts');
 const outputDirectory = join(root, '.astro-build');
 const fixture = join(sourceDirectory, 'posts', 'fixture.md');
+const figuresDirectory = join(root, 'public', 'figures');
+const fixtureFigures = ['fixture.svg', 'wide.svg', 'first.svg', 'second.svg'];
 const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+const fixtureSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" /></svg>\n';
 
 const validPost = `---
-title: "Fixture <post>"
+title: "Fixture *post*"
 date: ${yesterday}
-description: "Safe & short description"
+description: "Safe & **short** description"
+og: https://example.com/image.png
 slug: fixture-post
 ---
 
@@ -24,6 +28,9 @@ slug: fixture-post
 Raw <em>HTML</em>, **strong**, *emphasis*, and [link](https://example.com).
 
 <a class="fixture-link" data-cursor-target href="#contact" style="color: red">Raw link</a>, <code class="language-js">raw code</code><br>next line.
+
+<Figure srcs="figures/fixture.svg,figures/wide.svg" alts="Fixture figure,Wide fixture" caption="Figure caption" />
+<Figure cells srcs="figures/first.svg,figures/second.svg" caption="Cells caption" />
 
 [Markdown link](https://example.com)</a> after orphan closing tag.
 `;
@@ -72,6 +79,7 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
   try {
     await cp(sourceDirectory, join(sourceBackup, '_thoughts'), { recursive: true });
     await writeFile(fixture, validPost);
+    for (const name of fixtureFigures) await writeFile(join(figuresDirectory, name), fixtureSvg);
     assert.equal(build({ PATH: git.path, ...git.env }).status, 0);
 
     const homepage = await readFile(join(outputDirectory, 'index.html'), 'utf8');
@@ -89,9 +97,11 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     assert.match(homepage, /href="\/thoughts\/"/);
     assert.match(homepage, /© 2026 Sergi Meseguer/);
     assert.ok((await readFile(join(outputDirectory, 'favicon.ico'))).length > 0);
-    assert.ok((await readFile(join(outputDirectory, 'sergi-meseguer.jpg'))).length > 0);
+    assert.ok((await readFile(join(outputDirectory, 'sergi-meseguer.png'))).length > 0);
     assert.ok((await readFile(join(outputDirectory, 'fonts', 'playfair-roman.woff2'))).length > 0);
     assert.match(postHtml, /canonical.*thoughts\/fixture-post\//);
+    assert.match(postHtml, /<meta property="og:image" content="https:\/\/example\.com\/image\.png">/);
+    assert.match(postHtml, /<meta property="og:image:type" content="image\/png">/);
     assert.match(postHtml, /id="contact"/);
     assert.match(postHtml, /href="#contact"/);
     assert.match(postHtml, /data-cursor(?:="true")?(?:\s|>)/);
@@ -99,10 +109,14 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     assert.match(postHtml, /Raw &#x3C;em>HTML&#x3C;\/em>/);
     assert.match(postHtml, /<a href="#contact" class="fixture-link" data-cursor-target(?:="")?>Raw link<\/a>/);
     assert.match(postHtml, /<code class="language-js">raw code<\/code><br>next line\./);
+    assert.match(postHtml, /class="figure-portrait"[\s\S]*<svg[\s\S]*class="figure-landscape"[\s\S]*<svg/);
+    assert.match(postHtml, /class="post-figure post-figure-cells"[\s\S]*class="figure-cell"[\s\S]*class="figure-cell"/);
+    assert.match(postHtml, /<figcaption>Figure caption<\/figcaption>/);
     assert.match(postHtml, /<a href="https:\/\/example\.com">Markdown link<\/a>&#x3C;\/a> after orphan closing tag\./);
     assert.doesNotMatch(postHtml, /fixture-link[^>]*style=/);
     assert.doesNotMatch(postHtml, /astro-island/);
-    assert.match(thoughtsIndex, /Fixture (?:&lt;|&#x3C;)post>/);
+    assert.match(thoughtsIndex, /Fixture <em>post<\/em>/);
+    assert.match(postHtml, /Safe (?:&amp;|&#x26;) <strong>short<\/strong> description/);
     assert.match(thoughtsIndex, /id="contact"/);
     assert.match(thoughtsIndex, /href="#contact"/);
     assert.match(thoughtsIndex, /data-cursor(?:="true")?(?:\s|>)/);
@@ -117,10 +131,12 @@ test('production output contains homepage, assets, Thoughts routes, RSS, and sit
     }
 
     await rm(fixture);
+    for (const name of fixtureFigures) await rm(join(figuresDirectory, name), { force: true });
     assert.equal(build({ PATH: git.path, ...git.env }).status, 0);
     assert.equal(existsSync(join(outputDirectory, 'thoughts', 'fixture-post')), false);
   } finally {
     await rm(fixture, { force: true });
+    for (const name of fixtureFigures) await rm(join(figuresDirectory, name), { force: true });
     await rm(sourceDirectory, { recursive: true, force: true });
     await cp(join(sourceBackup, '_thoughts'), sourceDirectory, { recursive: true });
     await rm(sourceBackup, { recursive: true, force: true });

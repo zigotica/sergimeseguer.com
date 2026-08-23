@@ -7,6 +7,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import { codeToHast } from 'shiki';
 import { parse as parseYaml } from 'yaml';
+import { figureAssetMarkup, safeFigurePath } from './figure';
 
 export interface ThoughtPost {
   title: string;
@@ -14,6 +15,7 @@ export interface ThoughtPost {
   date: string;
   description: string;
   descriptionHtml: string;
+  og?: string;
   slug: string;
   html: string;
   sourcePath: string;
@@ -21,7 +23,39 @@ export interface ThoughtPost {
 
 const POSTS_DIRECTORY = join(process.cwd(), '_thoughts', 'posts');
 const REQUIRED_FIELDS = ['title', 'date', 'description', 'slug'] as const;
-const ALLOWED_HTML_TAGS = ['a', 'br', 'code'];
+const ALLOWED_HTML_TAGS = ['a', 'br', 'code', 'figure', 'figcaption', 'div', 'img'];
+const ALLOWED_FIGURE_CLASSES = new Set([
+  'post-figure',
+  'post-figure-cells',
+  'figure-portrait',
+  'figure-landscape',
+  'figure-cell',
+  'figure-cells-grid',
+]);
+const ALLOWED_RENDERED_TAGS = new Set([
+  'a',
+  'blockquote',
+  'br',
+  'code',
+  'div',
+  'em',
+  'figcaption',
+  'figure',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'img',
+  'li',
+  'ol',
+  'p',
+  'pre',
+  'span',
+  'strong',
+  'ul',
+]);
 const ALLOWED_NODES = new Set([
   'root',
   'heading',
@@ -83,6 +117,15 @@ function requiredString(sourcePath: string, frontmatter: Record<string, unknown>
   return value.trim();
 }
 
+function optionalString(sourcePath: string, frontmatter: Record<string, unknown>, field: string): string | undefined {
+  const value = frontmatter[field];
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== 'string') {
+    fail(sourcePath, `front matter field "${field}" must be a string when provided`);
+  }
+  return value.trim() || undefined;
+}
+
 function validateDate(sourcePath: string, value: string): string {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     fail(sourcePath, `date "${value}" must use ISO YYYY-MM-DD format`);
@@ -126,8 +169,85 @@ function safeLink(url: string): string | undefined {
   return trimmed;
 }
 
-function sanitizeNode(node: any, openRawTags: string[] = []): any {
+function escapeHtml(value: string): string {
+  return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function figureAttributes(value: string): Record<string, string | boolean> | undefined {
+  const match = /^<Figure\b([\s\S]*?)\/\s*>$/.exec(value.trim());
+  if (!match) return undefined;
+
+  const attributes: Record<string, string | boolean> = {};
+  const source = match[1];
+  const pattern = /([A-Za-z][\w-]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g;
+  let cursor = 0;
+  let attribute: RegExpExecArray | null;
+  while ((attribute = pattern.exec(source))) {
+    if (source.slice(cursor, attribute.index).trim()) return undefined;
+    attributes[attribute[1]] = attribute[2] ?? attribute[3] ?? attribute[4] ?? true;
+    cursor = pattern.lastIndex;
+  }
+  if (source.slice(cursor).trim()) return undefined;
+  return attributes;
+}
+
+type FigureAssetRenderer = (source: string, alt?: string) => string;
+
+function figureMarkup(value: string, renderAsset?: FigureAssetRenderer): string | undefined {
+  const attributes = figureAttributes(value);
+  if (!attributes || !renderAsset) return undefined;
+
+  const sourceList = attributes.srcs;
+  const rawSources = typeof sourceList === 'string'
+    ? sourceList.split(',').map((source) => source.trim()).filter(Boolean)
+    : [];
+  const sourcePaths = rawSources.map(safeFigurePath);
+  const sources = sourcePaths.filter((source): source is string => source !== undefined);
+  if (!sources.length || sources.length !== rawSources.length) return undefined;
+
+  const altList = typeof attributes.alts === 'string'
+    ? attributes.alts.split(',').map((value) => value.trim())
+    : [];
+  const imageAlt = (index: number) => altList[index] ?? '';
+  const cells = attributes.cells === true || attributes.cells === 'true';
+  const image = (className: string, source: string, imageAltValue: string) =>
+    `<div class="${className}" role="img" aria-label="${escapeHtml(imageAltValue)}">${renderAsset(source, imageAltValue)}</div>`;
+  const captionValue = attributes.caption ?? attributes.figcaption;
+  const caption = typeof captionValue === 'string'
+    ? `<figcaption>${escapeHtml(captionValue)}</figcaption>`
+    : '';
+
+  if (cells) {
+    return `<figure class="post-figure post-figure-cells"><div class="figure-cells-grid" style="--figure-cell-columns: ${Math.max(2, sources.length)}">${sources.map((source, index) => image('figure-cell', source, imageAlt(index))).join('')}</div>${caption}</figure>`;
+  }
+  if (sources.length === 1) return `<figure class="post-figure">${image('figure-inline', sources[0], imageAlt(0))}${caption}</figure>`;
+  if (sources.length !== 2) return undefined;
+  return `<figure class="post-figure">${image('figure-portrait', sources[0], imageAlt(0))}${image('figure-landscape', sources[1], imageAlt(1))}${caption}</figure>`;
+}
+
+function figuresMarkup(value: string, renderAsset?: FigureAssetRenderer): string | undefined {
+  if (!renderAsset) return undefined;
+  let found = false;
+  let invalid = false;
+  const rendered = value.replace(/<Figure\b[\s\S]*?\/\s*>/g, (tag) => {
+    found = true;
+    const markup = figureMarkup(tag, renderAsset);
+    if (!markup) invalid = true;
+    return markup ?? tag;
+  });
+  return found && !invalid ? rendered : undefined;
+}
+
+function sanitizeNode(
+  node: any,
+  openRawTags: string[] = [],
+  renderAsset?: FigureAssetRenderer,
+): any {
   if (node.type === 'html') {
+    const renderedFigures = figuresMarkup(node.value, renderAsset);
+    if (renderedFigures) return { type: 'html', value: renderedFigures };
+    if (/^<Figure\b/i.test(node.value.trim())) return { type: 'text', value: node.value };
+
     const match = node.value.match(/^<(\/)?([a-z][\w-]*)\b/i);
     const closing = match?.[1] === '/';
     const tag = match?.[2]?.toLowerCase();
@@ -139,7 +259,7 @@ function sanitizeNode(node: any, openRawTags: string[] = []): any {
       return node;
     }
 
-    if (tag !== 'br' && !/\/>\s*$/.test(node.value)) openRawTags.push(tag);
+    if (!['br', 'img'].includes(tag) && !/\/>\s*$/.test(node.value)) openRawTags.push(tag);
     return node;
   }
   if (node.type === 'image' || node.type === 'imageReference') {
@@ -150,11 +270,11 @@ function sanitizeNode(node: any, openRawTags: string[] = []): any {
   if (node.type === 'link') {
     const url = safeLink(node.url ?? '');
     if (!url) return { type: 'text', value: textContent(node) };
-    return { ...node, url, children: (node.children ?? []).map((child: any) => sanitizeNode(child, openRawTags)) };
+    return { ...node, url, children: (node.children ?? []).map((child: any) => sanitizeNode(child, openRawTags, renderAsset)) };
   }
   if (!ALLOWED_NODES.has(node.type)) return { type: 'text', value: textContent(node) };
   if (node.children) {
-    return { ...node, children: node.children.map((child: any) => sanitizeNode(child, openRawTags)) };
+    return { ...node, children: node.children.map((child: any) => sanitizeNode(child, openRawTags, renderAsset)) };
   }
   return node;
 }
@@ -245,7 +365,7 @@ function sanitizeHtmlTree(node: any): any {
   if (node.type !== 'element') return node;
 
   const children = (node.children ?? []).flatMap(sanitizeHtmlTree);
-  if (!ALLOWED_HTML_TAGS.includes(node.tagName)) return { ...node, children };
+  if (!ALLOWED_RENDERED_TAGS.has(node.tagName)) return children;
 
   const properties: Record<string, unknown> = {};
   if (node.tagName === 'a') {
@@ -253,6 +373,28 @@ function sanitizeHtmlTree(node: any): any {
     if (href) properties.href = href;
     if (node.properties?.className) properties.className = node.properties.className;
     if (node.properties?.dataCursorTarget !== undefined) properties.dataCursorTarget = '';
+  }
+  if (node.tagName === 'figure' || node.tagName === 'div') {
+    const classes = Array.isArray(node.properties?.className) ? node.properties.className : [];
+    const safeClasses = classes.filter((value: unknown) =>
+      typeof value === 'string' && (ALLOWED_FIGURE_CLASSES.has(value) || ['code-block', 'code-block-title'].includes(value)),
+    );
+    if (safeClasses.length) properties.className = safeClasses;
+    if (node.properties?.role === 'img') properties.role = 'img';
+    if (typeof node.properties?.ariaLabel === 'string') properties.ariaLabel = node.properties.ariaLabel;
+    if ((node.tagName === 'figure' || node.tagName === 'div') && typeof node.properties?.style === 'string' && /^--figure-cell-columns:\s*[1-9]\d*$/.test(node.properties.style.trim())) {
+      properties.style = node.properties.style;
+    }
+  }
+  if (node.tagName === 'pre' || node.tagName === 'span') {
+    if (Array.isArray(node.properties?.className)) properties.className = node.properties.className;
+  }
+  if (node.tagName === 'img') {
+    const src = safeFigurePath(node.properties?.src);
+    if (src) properties.src = src;
+    if (typeof node.properties?.alt === 'string') properties.alt = node.properties.alt;
+    if (node.properties?.loading === 'lazy') properties.loading = 'lazy';
+    if (node.properties?.decoding === 'async') properties.decoding = 'async';
   }
   if (node.tagName === 'code') {
     if (node.properties?.className) properties.className = node.properties.className;
@@ -263,6 +405,12 @@ function sanitizeHtmlTree(node: any): any {
 
 async function renderMarkdown(sourcePath: string, body: string): Promise<string> {
   try {
+    const assetReplacements = new Map<string, string>();
+    const renderAsset: FigureAssetRenderer = (source, alt = '') => {
+      const marker = `__FIGURE_ASSET_${assetReplacements.size}__`;
+      assetReplacements.set(marker, figureAssetMarkup(source, alt));
+      return marker;
+    };
     const processor = unified()
       .use(remarkParse)
       .use(remarkRehype, { allowDangerousHtml: true })
@@ -274,9 +422,11 @@ async function renderMarkdown(sourcePath: string, body: string): Promise<string>
       .use(() => (tree) => sanitizeHtmlTree(tree))
       .use(rehypeStringify);
     const tree = processor.parse(body);
-    const sanitizedTree = sanitizeNode(tree);
+    const sanitizedTree = sanitizeNode(tree, [], renderAsset);
     const result = await processor.run(sanitizedTree);
-    return String(processor.stringify(result));
+    let html = String(processor.stringify(result));
+    for (const [marker, asset] of assetReplacements) html = html.replaceAll(marker, asset);
+    return html;
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     fail(sourcePath, `Markdown parse failure: ${detail}`);
@@ -304,6 +454,7 @@ async function loadPostsUncached(): Promise<ThoughtPost[]> {
       date: validateDate(sourcePath, requiredString(sourcePath, frontmatter, 'date')),
       description: plainMarkdownText(descriptionSource),
       descriptionSource,
+      og: optionalString(sourcePath, frontmatter, 'og'),
       slug: validateSlug(sourcePath, requiredString(sourcePath, frontmatter, 'slug')),
       body,
     };
@@ -321,6 +472,7 @@ async function loadPostsUncached(): Promise<ThoughtPost[]> {
       title: post.title,
       date: post.date,
       description: post.description,
+      og: post.og,
       slug: post.slug,
       titleHtml: await renderInlineMarkdown(post.sourcePath, post.titleSource),
       descriptionHtml: await renderInlineMarkdown(post.sourcePath, post.descriptionSource),

@@ -3,6 +3,7 @@ title: What it took to actually **trust** an *AI agent harness*.
 date: 2026-04-13
 description: I run three AI coding agents. I didn’t trust any of them with my machine, so I built a container sandbox that gives each one only the access it needs. This is what changed.
 slug: trust-ai-agent-harness
+og: figures/trust-ai-agent-harness/og.png
 ---
 
 [Pi](https://pi.dev) clicked for me fast. The philosophy behind it resonates: small system prompt, minimal context and no features it does not need — while remaining extensible through TypeScript extensions, including ones written by the harness itself. It's a tool designed with real restraint, which is rarer than it sounds in this space.
@@ -70,6 +71,12 @@ Pi’s `bwrap` sandbox still constrains commands launched through its sandboxed 
 Different agents store things in different places. Pi keeps everything in `~/.pi`. Opencode splits config into `~/.config/opencode` and session data into `~/.local/share/opencode`. agent-sandbox mounts each harness's config and session directories separately, so each harness sees its config and data exactly where it expects them — and nothing else from your home directory.
 
 The container is configured to run as your UID and GID, so created files normally remain owned by you. No `sudo`. When the container exits (`--rm`), its unmounted filesystem is gone. Changes in bind-mounted project and agent-state directories persist. The base image is Chainguard's Node.js image, with only required runtime tools added.
+
+<Figure
+    srcs="figures/trust-ai-agent-harness/sandbox-portrait.svg,figures/trust-ai-agent-harness/sandbox-landscape.svg"
+    alts="Sandbox has r/w access to 3 mountpoints: agent setup, agent data and project data. The rest of the host filesystem is not even readable by the harness."
+    caption="Sandbox has r/w access to 3 mountpoints: agent setup, agent data and project data. The rest of the host filesystem is not even readable by the harness."
+/>
 
 The agent still has network access — it needs it for API calls. It can exfiltrate data over the network or access API keys passed through environment variables or stored in mounted config. This is **not a vault**. It's seatbelts: **a meaningful layer of protection against the most common failure modes**, not a guarantee against a determined attacker with code execution.
 

@@ -9,11 +9,13 @@ interface Props {
   title: string;
   description: string;
   canonical: string;
+  og?: string;
   ogType?: 'website' | 'article';
 }
 
-const { title, description, canonical, ogType = 'website' } = Astro.props;
+const { title, description, canonical, og, ogType = 'website' } = Astro.props;
 const siteName = 'Sergi Meseguer';
+const defaultOgImage = '/sergi-meseguer.png';
 ---
 <!doctype html>
 <html lang="en">
@@ -31,9 +33,10 @@ const siteName = 'Sergi Meseguer';
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={siteName} />
-    <meta property="og:image" content="https://sergimeseguer.com/sergi-meseguer.jpg" />
+    <meta property="og:image" content={og ?? defaultOgImage} />
+    {og && <meta property="og:image:type" content="image/png" />}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://sergimeseguer.com/sergi-meseguer.jpg" />
+    <meta name="twitter:image" content={og ?? defaultOgImage} />
     <link rel="alternate" type="application/rss+xml" title="Sergi Meseguer Thoughts RSS" href="/thoughts/rss.xml" />
     <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   </head>

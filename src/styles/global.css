@@ -196,6 +196,17 @@ menu {
   --color-frag-6: var(--color-tile-1);
   --color-frag-7: var(--color-tile-6);
 
+  /* ── Color: SVG figures ── */
+  --color-figures-bg: var(--base-gray-95);
+  --color-figures-line: var(--base-cream);
+  --color-figures-shape: var(--base-muted);
+  --color-figures-stealth: var(--base-slate);
+  --color-figures-shape-accent-primary: var(--base-terracotta);
+  --color-figures-shape-accent-secondary: var(--base-gold);
+  --color-figures-shape-accent-tertiary: var(--base-sky);
+  --color-figures-shape-accent-success: var(--base-sage);
+  --color-figures-shape-accent-error: var(--base-rose);
+
   /* ── Color: Cursor / UI ── */
   --color-cursor-ring: var(--base-gold);
   --color-hairline: var(--base-sky-op-20);
@@ -1711,6 +1722,66 @@ footer p {
   inset: unset;
   color: var(--color-accent-info) !important;
   text-decoration: none;
+}
+
+.thoughts-shell .post-body .post-figure {
+  margin-block: var(--space-4);
+  margin-inline: 0;
+}
+
+.thoughts-shell .post-body .post-figure img,
+.thoughts-shell .post-body .post-figure svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.thoughts-shell .post-body .post-figure>div {
+  margin-block-start: 0;
+}
+
+.thoughts-shell .post-body .post-figure .figure-portrait {
+  display: none;
+}
+
+.thoughts-shell .post-body .post-figure .figure-landscape {
+  display: block;
+}
+
+.thoughts-shell .post-body .post-figure figcaption {
+  margin-block-start: var(--space-1);
+  font: var(--typography-label-2);
+}
+
+.thoughts-shell .post-body .post-figure-cells {
+  display: block;
+}
+
+.thoughts-shell .post-body .post-figure-cells .figure-cells-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+.thoughts-shell .post-body .post-figure-cells .figure-cell {
+  min-width: 0;
+  margin-block-start: 0;
+}
+
+@media (min-width: 500px) {
+  .thoughts-shell .post-body .post-figure-cells .figure-cells-grid {
+    grid-template-columns: repeat(var(--figure-cell-columns), minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 499px) and (orientation: portrait) {
+  .thoughts-shell .post-body .post-figure .figure-portrait {
+    display: block;
+  }
+
+  .thoughts-shell .post-body .post-figure .figure-landscape {
+    display: none;
+  }
 }
 
 .thoughts-shell .post-body p>code {
