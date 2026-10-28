@@ -1,0 +1,181 @@
+@media print {
+  :root {
+    --menu-height: 0;
+    --space-section-x: 0;
+    --space-section-x-collapsed: 0;
+    --space-section-y: var(--space-3);
+    --color-bg-hero: #fff;
+    --color-bg-contact: #fff;
+    --color-bg-footer: #fff;
+    --color-text-primary: #111;
+    --color-text-muted: #333;
+    --color-text-subtle: #555;
+    --color-panel-1: #fff;
+    --color-panel-2: #fff;
+    --color-panel-3: #fff;
+    --color-panel-4: #fff;
+  }
+
+  html,
+  body {
+    overflow: visible !important;
+  }
+
+  body {
+    background: #fff;
+    min-height: auto !important;
+    padding-block-end: 0;
+  }
+
+  .main-nav,
+  .hero-right,
+  .hero-coord,
+  .cursor-ring,
+  .cursor-hairline,
+  .fragment-divider,
+  body > footer {
+    display: none !important;
+  }
+
+  #hero,
+  .hero-container,
+  #contact {
+    min-height: auto !important;
+  }
+
+  #hero {
+    overflow: visible;
+  }
+
+  #manifesto .section-label {
+    margin-block-start: 10rem;
+  }
+
+  #experience,
+  #projects,
+  #labs,
+  #contact {
+    break-before: page;
+  }
+
+  .hero-container {
+    display: block;
+  }
+
+  .manifesto-grid,
+  .exp-header,
+  .projects-mosaic,
+  .labs-grid,
+  .thoughts-post-list,
+  .contact-container {
+    display: block;
+  }
+
+  .hero-left {
+    padding-block-start: var(--space-3);
+    padding-inline: 0;
+  }
+
+  .manifesto-grid > * + *,
+  .contact-right {
+    margin-block-start: var(--space-3);
+  }
+
+  #experience .section-title > br {
+    display: none;
+  }
+
+  #experience .section-title em {
+    display: block;
+    font-size: 0.5em;
+    line-height: 1;
+  }
+
+  h1.hero-name em,
+  .section-title em,
+  .project-tagline,
+  .lab-link,
+  .contact-body strong,
+  .thoughts-entry-title em,
+  .thought-entry-title em,
+  .thoughts-entry-read-more,
+  .thoughts-shell .post-body h2,
+  .thoughts-shell .post-body a,
+  .thoughts-shell .post-body .code-block-title {
+    color: var(--color-accent-info);
+  }
+
+  .exp-header {
+    margin-block-end: var(--space-3);
+  }
+
+  .projects-intro {
+    padding-block-end: 0;
+  }
+
+  .projects-mosaic {
+    margin-block-start: var(--space-2);
+  }
+
+  .project-tile {
+    display: block;
+    overflow: visible;
+  }
+
+  .project-body,
+  .lab-body {
+    max-width: none;
+  }
+
+  .project-outcome {
+    background: none;
+  }
+
+  .project-outcome,
+  .lab-card,
+  blockquote {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .thoughts-shell .post-body blockquote::before {
+    position: static;
+    display: block;
+    line-height: 1;
+    margin-block-end: var(--space-1);
+  }
+
+  .thoughts-shell .post-body a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75em;
+    color: var(--color-text-subtle);
+    overflow-wrap: anywhere;
+  }
+
+  .thoughts-shell .post-body a[href^="/"]:not([href^="//"])::after {
+    content: " (https://sergimeseguer.com" attr(href) ")";
+  }
+
+  .exp-header > * + *,
+  .exp-header-spaced-top,
+  .project-tile + .project-tile,
+  .lab-card + .lab-card {
+    margin-block-start: var(--space-2);
+  }
+
+  .thoughts-shell {
+    padding-block-start: 0;
+  }
+
+  .reveal,
+  .reveal.visible,
+  .hero-tag,
+  h1.hero-name,
+  .hero-sub,
+  .hero-metrics {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
